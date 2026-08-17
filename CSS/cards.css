@@ -22,7 +22,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 14px;
-  background-color: #1a1a24;
+  background-color: hsla(240, 16%, 12%, 0.5);
   pointer-events: none;
   border-radius: 5px;
 }

@@ -3,10 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Testing Grounds Lars</title>
     <link rel="stylesheet" href="CSS/cards.css" />
   </head>
   <body>
-    <div class="card"></div>
+    <script type="module">
+      import { cardDatabase } from "./JS/data/cardsdatabase.js";
+      import { createCard } from "./JS/cardCreator.js";
+
+      const targetCardData = cardDatabase.find(
+        (card) => card.name === "The Defensive Test Card",
+      );
+
+      if (targetCardData) {
+        const myNewCard = createCard(targetCardData);
+        document.body.appendChild(myNewCard);
+      } else {
+        console.warn(
+          "Targetted card was not found. Did you enter the correct name?",
+        );
+      }
+    </script>
   </body>
 </html>

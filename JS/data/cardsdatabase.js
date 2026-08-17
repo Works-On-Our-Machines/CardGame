@@ -1,0 +1,38 @@
+export const cardDatabase = [
+  {
+    id: "card_001",
+    name: "The Default Test Card",
+    cost: 1,
+    portrait: "../Assets/CardPortraits/PlaceholderPortrait.png",
+    specialRule: "None",
+    atk: 1,
+    hp: 2,
+  },
+  {
+    id: "card_002",
+    name: "The Stronger Test Card",
+    cost: 2,
+    portrait: "../Assets/CardPortraits/PlaceholderPortrait.png",
+    specialRule: "None",
+    atk: 2,
+    hp: 3,
+  },
+  {
+    id: "card_003",
+    name: "The Defensive Test Card",
+    cost: 2,
+    portrait: "../Assets/CardPortraits/PlaceholderPortrait.png",
+    specialRule: "None",
+    atk: 0,
+    hp: 5,
+  },
+  {
+    id: "card_004",
+    name: "The Aggressive Test Card",
+    cost: 2,
+    portrait: "../Assets/CardPortraits/PlaceholderPortrait.png",
+    specialRule: "None",
+    atk: 3,
+    hp: 1,
+  },
+];
