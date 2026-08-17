@@ -3,7 +3,103 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Board Testing</title>
+
+    <style>
+      .boardFrame {
+        display: flex;
+        margin: 0 auto;
+        background-color: rgb(231, 231, 210);
+        align-items: center;
+        justify-content: center;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      .board {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: aquamarine;
+        padding: 25px;
+        margin: 15px;
+        width: 66vw;
+        border-radius: 1rem;
+        height: 88vh;
+      }
+
+      .laneGridContainer {
+        display: grid;
+        background-color: blueviolet;
+        margin: 1em;
+        padding: 2em;
+        border-radius: 15px;
+        grid-template-columns: repeat(4, 300px);
+        grid-template-rows: repeat(2, 400px);
+        gap: 10px;
+      }
+
+      .laneGridBoxes {
+        padding: 2em;
+        background-color: beige;
+        text-align: center;
+        border-radius: 8px;
+        font-size: 2rem;
+      }
+
+      .handbox {
+        width: 45vw;
+        height: 400px;
+        background-color: blueviolet;
+        margin: 1px;
+        padding: 1em;
+        border-radius: 15px;
+      }
+
+      .actionsBox {
+        background-color: blueviolet;
+        width: 250px;
+        height: 250px;
+        margin: 25px;
+        padding: 25px;
+      }
+
+      .actionbutton {
+      }
+
+      .deckArea {
+      }
+    </style>
   </head>
-  <body></body>
+  <body>
+    <div class="boardFrame">
+      <div class="board">
+        <div class="actionsBox"></div>
+        <div class="laneGridContainer">
+          <div class="laneGridBoxes">Enemy Card 1</div>
+          <div class="laneGridBoxes">Enemy Card 2</div>
+          <div class="laneGridBoxes">Enemy Card 3</div>
+          <div class="laneGridBoxes">Enemy Card 4</div>
+          <div class="laneGridBoxes">Card 1</div>
+          <div class="laneGridBoxes">Card 2</div>
+          <div class="laneGridBoxes">Card 3</div>
+          <div class="laneGridBoxes">Card 4</div>
+        </div>
+
+        <div class="handbox">
+          <p
+            style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100px;
+            "
+          >
+            Player hand goes here
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>
