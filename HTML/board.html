@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Card Game</title>
+
+    <link rel="stylesheet" href="CSS/utilities.css" />
+    <link rel="stylesheet" href="CSS/board.css" />
+    <link rel="stylesheet" href="CSS/cards.css" />
+  </head>
+  <body>
+    <div class="main-container row justify-center align-center padding-1">
+      <div class="left-side margin-1">
+        <div class="actions">
+          <span>Actions / Energy</span>
+        </div>
+      </div>
+
+      <!-- Main Game Board -->
+      <div class="board">
+        <div class="lanes column justify-evenly">
+          <!-- Enemy Board Lane -->
+          <div
+            id="enemy-lane"
+            class="lane-enemy row justify-evenly align-center"
+          >
+            <div class="card-slot">Empty Slot</div>
+            <div class="card-slot">Empty Slot</div>
+            <div class="card-slot">Empty Slot</div>
+            <div class="card-slot">Empty Slot</div>
+          </div>
+
+          <!-- Player Board Lane -->
+          <div
+            id="player-lane"
+            class="lane-player row justify-evenly align-center"
+          >
+            <div class="card-slot">Empty Slot</div>
+            <div class="card-slot">Empty Slot</div>
+            <div class="card-slot">Empty Slot</div>
+            <div class="card-slot">Empty Slot</div>
+          </div>
+        </div>
+
+        <!-- Player Hand Container -->
+        <div
+          id="player-hand"
+          class="player-hand row justify-evenly align-center"
+        >
+        </div>
+      </div>
+
+      <!-- Right Side Panel (Deck / Discard Piles) -->
+      <div class="right-side margin-1">
+        <div id="deck-pile" class="player-deck">
+          <span>Deck (0)</span>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="JS/main.js"></script>
+  </body>
+</html>

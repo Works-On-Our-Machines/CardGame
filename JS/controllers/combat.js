@@ -1,0 +1,1 @@
+// Her skriver vi alt av logikk for hvordan kort angriper hverandre og spilleren/CPUen når man trykker på end turn/play round.
