@@ -22,24 +22,32 @@
         <div class="lanes column justify-evenly">
           <!-- Enemy Board Lane -->
           <div
+            id="enemy-back-lane"
+            class="lane-enemy row justify-evenly align-center"
+          >
+            <div class="card-slot" data-lane="enemyBack" data-index="0">Empty Slot</div>
+            <div class="card-slot" data-lane="enemyBack" data-index="1">Empty Slot</div>
+            <div class="card-slot" data-lane="enemyBack" data-index="2">Empty Slot</div>
+            <div class="card-slot" data-lane="enemyBack" data-index="3">Empty Slot</div>
+          </div>
+          <div
             id="enemy-lane"
             class="lane-enemy row justify-evenly align-center"
           >
-            <div class="card-slot">Empty Slot</div>
-            <div class="card-slot">Empty Slot</div>
-            <div class="card-slot">Empty Slot</div>
-            <div class="card-slot">Empty Slot</div>
+            <div class="card-slot" data-lane="enemyFront" data-index="0">Empty Slot</div>
+            <div class="card-slot" data-lane="enemyFront" data-index="1">Empty Slot</div>
+            <div class="card-slot" data-lane="enemyFront" data-index="2">Empty Slot</div>
+            <div class="card-slot" data-lane="enemyFront" data-index="3">Empty Slot</div>
           </div>
-
           <!-- Player Board Lane -->
           <div
             id="player-lane"
             class="lane-player row justify-evenly align-center"
           >
-            <div class="card-slot">Empty Slot</div>
-            <div class="card-slot">Empty Slot</div>
-            <div class="card-slot">Empty Slot</div>
-            <div class="card-slot">Empty Slot</div>
+            <div class="card-slot" data-lane="PlayerFront" data-index="0">Empty Slot</div>
+            <div class="card-slot" data-lane="PlayerFront" data-index="1">Empty Slot</div>
+            <div class="card-slot" data-lane="PlayerFront" data-index="2">Empty Slot</div>
+            <div class="card-slot" data-lane="PlayerFront" data-index="3">Empty Slot</div>
           </div>
         </div>
 
@@ -47,8 +55,7 @@
         <div
           id="player-hand"
           class="player-hand row justify-evenly align-center"
-        >
-        </div>
+        ></div>
       </div>
 
       <!-- Right Side Panel (Deck / Discard Piles) -->

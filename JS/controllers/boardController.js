@@ -1,30 +1,110 @@
 import { playerDeck } from "../data/playerDeck.js";
 import { createCard } from "../cardCreator.js";
+import { gameState } from "../state/gameState.js";
 
 let drawPile = [];
 
 export function setupBoard() {
-  playerDeck.initStartingDeck(); //We dont want to do this here in the future I suspect, but it will work for now just to see things working.
-  drawPile = [...playerDeck.cards];
+  gameState.resetBoard();
+  playerDeck.initStartingDeck();
 
-  shuffleDeck(drawPile);
+  gameState.drawPile = [...playerDeck.cards];
+  shuffleDeck(gameState.drawPile);
 
-  const deckSlot = document.getElementById("deck-pile");
+  //Add listener to the deck pile
+  document.getElementById("deck-pile").addEventListener("click", drawCard);
+
+  //Add listener to the player hand
+  document
+    .getElementById("player-hand")
+    .addEventListener("click", handleHandClick);
+
+  setupSlotListeners();
+
+  //For now, "hacky" solution to draw 3 cards on setup. Make a stat for the player that multiplies with a function here.
+  drawCard();
+  drawCard();
+  drawCard();
 
   updateDeckUI();
+}
 
-  deckSlot.addEventListener("click", () => {
-    drawCard();
+function handleHandClick(event) {
+  const cardElement = event.target.closest(".card");
+  if (!cardElement) return;
+
+  const handContainer = document.getElementById("player-hand");
+  const cardIndex = Array.from(handContainer.children).indexOf(cardElement);
+
+  if (cardIndex !== -1) {
+    gameState.selectedCardIndex = cardIndex;
+
+    document
+      .querySelectorAll("player-hand .card")
+      .forEach((c) => c.classList.remove("selected"));
+    cardElement.classList.add("selected");
+  }
+}
+
+function setupSlotListeners() {
+  const playerSlots = document.querySelectorAll("#player-lane .card-slot");
+
+  playerSlots.forEach((slot) => {
+    slot.addEventListener("click", () => {
+      const slotIndex = parseInt(slot.dataset.index, 10);
+      playSelectedCardToSlot(slotIndex, slot);
+    });
   });
 }
 
+function playSelectedCardToSlot(slotIndex, slotElement) {
+  // Guard Clauses
+  if (gameState.selectedCardIndex === null) return; // No card selected fallback
+  if (gameState.board.playerFront[slotIndex] !== null) return; // if slot occupied
+
+  const cardData = gameState.hand[gameState.selectedCardIndex];
+
+  // Energy Check defaults to 1 if unset
+  const cardCost = cardData.cost ?? 1;
+  if (gameState.player.energy < cardCost) {
+    console.warn("Not enough energy!");
+    return;
+  }
+
+  // Deduct energy & update state arrays
+  gameState.player.energy -= cardCost;
+  gameState.board.playerFront[slotIndex] = cardData;
+  gameState.hand.splice(gameState.selectedCardIndex, 1);
+  gameState.selectedCardIndex = null; // Clear selection
+
+  renderHandUI();
+  renderSlotUI(slotElement, cardData);
+}
+
+function renderHandUI() {
+  const handContainer = document.getElementById("player-hand");
+  handContainer.innerHTML = ""; // Clear existing hand
+
+  gameState.hand.forEach((cardData) => {
+    const cardEl = createCard(cardData);
+    handContainer.appendChild(cardEl);
+  });
+}
+
+function renderSlotUI(slotElement, cardData) {
+  slotElement.innerHTML = ""; // Clear "Empty Slot" text
+  const cardEl = createCard(cardData);
+  slotElement.appendChild(cardEl);
+}
+
 function drawCard() {
-  if (drawPile.length === 0) {
+  if (gameState.drawPile.length === 0) {
     console.warn("Your deck is empty!");
     return;
   }
 
-  const cardData = drawPile.pop();
+  const cardData = gameState.drawPile.pop();
+  gameState.hand.push(cardData);
 
   const cardElement = createCard(cardData);
   const handContainer = document.getElementById("player-hand");
@@ -36,10 +116,9 @@ function drawCard() {
 function updateDeckUI() {
   const deckSlot = document.getElementById("deck-pile");
   if (deckSlot) {
-    deckSlot.textContent = `Deck (${drawPile.length})`;
+    deckSlot.textContent = `Deck (${gameState.drawPile.length})`;
   }
 }
-
 
 //Found this online, it's apparently called a "fisher-yates shuffle"
 function shuffleDeck(array) {

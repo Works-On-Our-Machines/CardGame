@@ -50,8 +50,8 @@
 }
 
 .card-slot {
-  width: 16em;
-  height: 24em;
+  width: 12em;
+  height: 18em;
   border: 2px dashed rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   display: flex;
@@ -67,10 +67,11 @@
 
 .player-hand {
   height: 30%;
-  min-height: 654px;
+  min-height: 575px;
   flex-shrink: 0;
   background: #181b20;
   border: 1px solid #2e3440;
   border-radius: 12px;
   padding: 0.5em;
+  margin-top: 1.5em;
 }
