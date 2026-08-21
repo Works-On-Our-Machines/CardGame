@@ -11,7 +11,7 @@ export function setupBoard() {
   gameState.drawPile = [...playerDeck.cards];
   shuffleDeck(gameState.drawPile);
 
-  //Add listener to the deck pile
+  //Add listener to the deck pile. Not entirely sure if this should be here, but it is here for now.
   document.getElementById("deck-pile").addEventListener("click", drawCard);
 
   //Add listener to the player hand
@@ -36,12 +36,19 @@ function handleHandClick(event) {
   const handContainer = document.getElementById("player-hand");
   const cardIndex = Array.from(handContainer.children).indexOf(cardElement);
 
-  if (cardIndex !== -1) {
-    gameState.selectedCardIndex = cardIndex;
+  if (cardIndex === -1) return;
 
+  const isSelfSelected = gameState.selectedCardIndex === cardIndex;
+
+  if (isSelfSelected) {
+    gameState.selectedCardIndex = null;
+    cardElement.classList.remove("selected");
+  } else {
     document
-      .querySelectorAll("player-hand .card")
+      .querySelectorAll("#player-hand .card")
       .forEach((c) => c.classList.remove("selected"));
+
+    gameState.selectedCardIndex = cardIndex;
     cardElement.classList.add("selected");
   }
 }
@@ -58,7 +65,6 @@ function setupSlotListeners() {
 }
 
 function playSelectedCardToSlot(slotIndex, slotElement) {
-  // Guard Clauses
   if (gameState.selectedCardIndex === null) return; // No card selected fallback
   if (gameState.board.playerFront[slotIndex] !== null) return; // if slot occupied
 
@@ -71,7 +77,7 @@ function playSelectedCardToSlot(slotIndex, slotElement) {
     return;
   }
 
-  // Deduct energy & update state arrays
+  // Reduce energy & update state arrays
   gameState.player.energy -= cardCost;
   gameState.board.playerFront[slotIndex] = cardData;
   gameState.hand.splice(gameState.selectedCardIndex, 1);

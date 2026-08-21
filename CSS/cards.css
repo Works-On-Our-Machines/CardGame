@@ -2,28 +2,37 @@
 
 .card {
   background-color: rgb(181, 182, 172);
-  width: 300px;
-  height: 450px;
-  /* Størrelsen på kortene burde og kan nok justeres, men har bare satt statiske px values her for nå */
+  aspect-ratio: 5 / 8;
+  box-sizing: border-box;
   border-radius: 1rem;
   border: 4px solid #acacac;
-  margin: 20px auto;
-  padding: 10px;
+  padding: 8px; /* Reduced from 10px */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   position: relative;
   color: #ffffff;
   overflow: hidden;
-  gap: 10px;
+  gap: 4px; /* Reduced from 8px */
+}
+
+.card-slot .card {
+  width: 100%;
+  height: 100%;
+}
+
+.player-hand .card {
+  height: 90%; /* Takes up 90% of the hand box height */
+  width: auto; /* Let aspect-ratio calculate width */
+  max-height: 320px; /* Hard ceiling so big screens don't make hand cards huge */
+  flex-shrink: 0; /* Prevents flexbox from squeezing cards flat */
 }
 
 .cardHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 14px;
+  padding: 0.1rem 0.1rem;
   background-color: hsla(240, 16%, 12%, 0.5);
   pointer-events: none;
   border-radius: 5px;
@@ -38,7 +47,7 @@
 .card-portraitBox {
   display: flex;
   width: 100%;
-  height: 250px;
+  height: 35%; /* Fixed percentage height instead of max-height */
   align-items: center;
   justify-content: center;
   background-color: #111;
@@ -54,44 +63,43 @@
 }
 
 .cardspecialsBox {
-  flex-grow: 1; /* Fills the available vertical space */
+  flex: 1; /* Takes remaining space */
+  min-height: 0; /* CRITICAL: Allows flexbox to shrink this box if card is small */
   background-color: rgba(132, 133, 126, 0.445);
   border-radius: 5px;
   color: #111;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
+  padding: 4px 8px; /* Reduced padding */
   text-align: center;
   margin: 0;
 }
 
 .cardSpecials {
   font-weight: bold;
-  pointer-events: none; /*  Her burde vi legge inn noe funksjonalitet som lar spilleren lese hva reglen gjør når man holder over. */
+  pointer-events: none; /*  Her burde jeg legge inn noe funksjonalitet som lar spilleren lese hva reglen gjør når man holder over. */
 }
 
 .card-stats {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 16px;
+  padding: 4px 8px;
+  flex-shrink: 0; /* Ensures stats are ALWAYS visible */
 }
 
 .cardHP,
 .cardAtk {
   font-weight: bold;
-  font-size: larger;
+  font-size: 0.85rem;
   pointer-events: none;
-
-  width: 66px;
-  height: 44px;
-  border-radius: 10%;
-
+  padding: 2px 8px;
+  min-width: 32px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-
   background-color: rgba(132, 133, 126, 0.445);
 }
 
