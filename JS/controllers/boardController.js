@@ -1,6 +1,6 @@
 import { playerDeck } from "../data/playerDeck.js";
 import { createCard } from "../cardCreator.js";
-import { gameState } from "../state/gameState.js";
+import { gameState } from "../state/gamestate.js";
 
 let drawPile = [];
 
@@ -27,6 +27,7 @@ export function setupBoard() {
   drawCard();
 
   updateDeckUI();
+  renderStatsUI();
 }
 
 function handleHandClick(event) {
@@ -80,6 +81,7 @@ function playSelectedCardToSlot(slotIndex, slotElement) {
   // Reduce energy & update state arrays
   gameState.player.energy -= cardCost;
   gameState.board.playerFront[slotIndex] = cardData;
+  renderStatsUI();
   gameState.hand.splice(gameState.selectedCardIndex, 1);
   gameState.selectedCardIndex = null; // Clear selection
 
@@ -134,4 +136,17 @@ function shuffleDeck(array) {
     [array[i], array[j]] = [array[j], array[i]];
   }
   return array;
+}
+
+export function renderStatsUI() {
+  const playerHpEl = document.getElementById("player-hp");
+  const playerEnergyEl = document.getElementById("player-energy");
+
+  if (playerHpEl) {
+    playerHpEl.textContent = `${gameState.player.hp}/${gameState.player.maxHp}`;
+  }
+
+  if (playerEnergyEl) {
+    playerEnergyEl.textContent = `${gameState.player.energy}/${gameState.player.maxEnergy}`;
+  }
 }

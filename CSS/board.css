@@ -28,12 +28,15 @@ body,
   width: 15%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+  gap: 10rem;
 }
 
 .actions,
 .player-deck {
   background: #1f242d;
+  display: flex;
+  flex-direction: column;
   border: 1px solid #3b4252;
   border-radius: 8px;
   height: 20vh;
@@ -41,6 +44,32 @@ body,
   align-items: center;
   justify-content: center;
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.hpEnergy {
+  background: #1f242d;
+  border: 1px solid #3b4252;
+  border-radius: 8px;
+  height: 15vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+  gap: 1rem;
+}
+
+.hp {
+  background-color: #4a515e;
+  height: 20%;
+  width: fit-content;
+  min-width: 20%;
+}
+
+.energy {
+  background-color: #4a515e;
+  height: 20%;
+  width: fit-content;
+  min-width: 20%;
 }
 
 .board {
@@ -95,12 +124,12 @@ body,
 }
 
 .player-hand {
-height: 25%;
+  height: 25%;
   flex-shrink: 0;
   background: #181b20;
   border: 1px solid #2e3440;
   border-radius: 12px;
-  
+
   /* Flexbox settings for holding multiple cards */
   display: flex;
   align-items: center;

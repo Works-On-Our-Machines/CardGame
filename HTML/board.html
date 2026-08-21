@@ -13,7 +13,18 @@
     <div class="main-container row justify-center align-center padding-1">
       <div class="left-side margin-1">
         <div class="actions">
-          <span>Actions / Energy</span>
+          <span>Actions</span>
+          <button>End Turn</button>
+          <button>Undo</button>
+        </div>
+
+        <div class="hpEnergy">
+          <div class="hp">
+            <p>Player HP: <span id="player-hp">10/10</span></p>
+          </div>
+          <div class="energy">
+            <p>Energy: <span id="player-energy">1/3</span></p>
+          </div>
         </div>
       </div>
 
@@ -25,29 +36,53 @@
             id="enemy-back-lane"
             class="lane-enemy row justify-evenly align-center"
           >
-            <div class="card-slot" data-lane="enemyBack" data-index="0">Empty Slot</div>
-            <div class="card-slot" data-lane="enemyBack" data-index="1">Empty Slot</div>
-            <div class="card-slot" data-lane="enemyBack" data-index="2">Empty Slot</div>
-            <div class="card-slot" data-lane="enemyBack" data-index="3">Empty Slot</div>
+            <div class="card-slot" data-lane="enemyBack" data-index="0">
+              Empty Slot
+            </div>
+            <div class="card-slot" data-lane="enemyBack" data-index="1">
+              Empty Slot
+            </div>
+            <div class="card-slot" data-lane="enemyBack" data-index="2">
+              Empty Slot
+            </div>
+            <div class="card-slot" data-lane="enemyBack" data-index="3">
+              Empty Slot
+            </div>
           </div>
           <div
             id="enemy-lane"
             class="lane-enemy row justify-evenly align-center"
           >
-            <div class="card-slot" data-lane="enemyFront" data-index="0">Empty Slot</div>
-            <div class="card-slot" data-lane="enemyFront" data-index="1">Empty Slot</div>
-            <div class="card-slot" data-lane="enemyFront" data-index="2">Empty Slot</div>
-            <div class="card-slot" data-lane="enemyFront" data-index="3">Empty Slot</div>
+            <div class="card-slot" data-lane="enemyFront" data-index="0">
+              Empty Slot
+            </div>
+            <div class="card-slot" data-lane="enemyFront" data-index="1">
+              Empty Slot
+            </div>
+            <div class="card-slot" data-lane="enemyFront" data-index="2">
+              Empty Slot
+            </div>
+            <div class="card-slot" data-lane="enemyFront" data-index="3">
+              Empty Slot
+            </div>
           </div>
           <!-- Player Board Lane -->
           <div
             id="player-lane"
             class="lane-player row justify-evenly align-center"
           >
-            <div class="card-slot" data-lane="PlayerFront" data-index="0">Empty Slot</div>
-            <div class="card-slot" data-lane="PlayerFront" data-index="1">Empty Slot</div>
-            <div class="card-slot" data-lane="PlayerFront" data-index="2">Empty Slot</div>
-            <div class="card-slot" data-lane="PlayerFront" data-index="3">Empty Slot</div>
+            <div class="card-slot" data-lane="PlayerFront" data-index="0">
+              Empty Slot
+            </div>
+            <div class="card-slot" data-lane="PlayerFront" data-index="1">
+              Empty Slot
+            </div>
+            <div class="card-slot" data-lane="PlayerFront" data-index="2">
+              Empty Slot
+            </div>
+            <div class="card-slot" data-lane="PlayerFront" data-index="3">
+              Empty Slot
+            </div>
           </div>
         </div>
 
