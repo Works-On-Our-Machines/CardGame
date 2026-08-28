@@ -12,19 +12,21 @@ export function setupBoard() {
   shuffleDeck(gameState.drawPile);
 
   //Add listener to the deck pile. Not entirely sure if this should be here, but it is here for now.
-  document.getElementById("deck-pile").addEventListener("click", drawCard);
-
+  document
+    .getElementById("deck-pile")
+    ?.addEventListener("click", () => drawCard(false));
   //Add listener to the player hand
   document
     .getElementById("player-hand")
-    .addEventListener("click", handleHandClick);
+    ?.addEventListener("click", handleHandClick);
+
+  // End Turn listener
+  const endTurnBtn = document.getElementById("end-turn-btn");
+  if (endTurnBtn) {
+    endTurnBtn.addEventListener("click", endPlayerTurn);
+  }
 
   setupSlotListeners();
-
-  //For now, "hacky" solution to draw 3 cards on setup. Make a stat for the player that multiplies with a function here.
-  drawCard();
-  drawCard();
-  drawCard();
 
   updateDeckUI();
   renderStatsUI();
@@ -105,19 +107,28 @@ function renderSlotUI(slotElement, cardData) {
   slotElement.appendChild(cardEl);
 }
 
-function drawCard() {
+export function drawCard(isEffect = false) {
   if (gameState.drawPile.length === 0) {
     console.warn("Your deck is empty!");
+    return;
+  }
+
+  if (
+    !isEffect &&
+    gameState.player.cardsDrawnThisTurn >= gameState.player.cardDrawPerTurn
+  ) {
+    console.warn("Draw limit reached for this turn!");
     return;
   }
 
   const cardData = gameState.drawPile.pop();
   gameState.hand.push(cardData);
 
-  const cardElement = createCard(cardData);
-  const handContainer = document.getElementById("player-hand");
-  handContainer.appendChild(cardElement);
+  if (!isEffect) {
+    gameState.player.cardsDrawnThisTurn++;
+  }
 
+  renderHandUI();
   updateDeckUI();
 }
 
@@ -149,4 +160,33 @@ export function renderStatsUI() {
   if (playerEnergyEl) {
     playerEnergyEl.textContent = `${gameState.player.energy}/${gameState.player.maxEnergy}`;
   }
+}
+
+export function startPlayerTurn() {
+  gameState.player.cardsDrawnThisTurn = 0;
+
+  gameState.player.energy = Math.min(
+    gameState.player.maxEnergy,
+    gameState.player.energy + gameState.player.energyGain,
+  );
+
+  // Draw starting card(s) for the turn
+  for (let i = 0; i < gameState.player.cardDrawPerTurn; i++) {
+    drawCard(false);
+  }
+
+  renderStatsUI();
+}
+
+export function endPlayerTurn() {
+  // Clear any active card selection
+  gameState.selectedCardIndex = null;
+  document
+    .querySelectorAll("#player-hand .card")
+    .forEach((c) => c.classList.remove("selected"));
+
+  // (Future spot: Trigger Enemy AI turn / Combat resolution here)
+
+  // Pass turn back to player
+  startPlayerTurn();
 }
