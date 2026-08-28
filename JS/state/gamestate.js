@@ -8,7 +8,8 @@ export const gameState = {
     energyGain: 1,
     maxEnergy: 3,
     cardDrawPerTurn: 1,
-    cardsDrawnThisTurn:0,
+    cardsDrawnThisTurn: 0,
+    initialCardDraw: 3
   },
 
   enemy: {

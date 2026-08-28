@@ -6,12 +6,12 @@ let drawPile = [];
 
 export function setupBoard() {
   gameState.resetBoard();
-  playerDeck.initStartingDeck();
+  playerDeck.initStartingDeck(); //I dont think this should be here when development if further along. This will probably always reset the deck, which isnt good when card rewards are introduced.
 
   gameState.drawPile = [...playerDeck.cards];
   shuffleDeck(gameState.drawPile);
 
-  //Add listener to the deck pile. Not entirely sure if this should be here, but it is here for now.
+  //Add listener to the deck pile.
   document
     .getElementById("deck-pile")
     ?.addEventListener("click", () => drawCard(false));
@@ -26,7 +26,11 @@ export function setupBoard() {
     endTurnBtn.addEventListener("click", endPlayerTurn);
   }
 
-  setupSlotListeners();
+  for (let i = 0; i < gameState.player.initialCardDraw; i++) {
+    drawCard(true);
+  }
+
+  startPlayerTurn();
 
   updateDeckUI();
   renderStatsUI();
