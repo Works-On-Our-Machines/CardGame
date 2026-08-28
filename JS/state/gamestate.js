@@ -9,15 +9,13 @@ export const gameState = {
     maxEnergy: 3,
     cardDrawPerTurn: 1,
     cardsDrawnThisTurn: 0,
-    initialCardDraw: 3
+    initialCardDraw: 3,
   },
 
   enemy: {
     hp: 10,
     maxHp: 10,
     energy: 3,
-    energyGain: 1,
-    maxEnergy: 3,
   },
 
   board: {

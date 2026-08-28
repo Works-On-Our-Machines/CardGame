@@ -6,34 +6,35 @@ let drawPile = [];
 
 export function setupBoard() {
   gameState.resetBoard();
-  playerDeck.initStartingDeck(); //I dont think this should be here when development if further along. This will probably always reset the deck, which isnt good when card rewards are introduced.
+  playerDeck.initStartingDeck(); //This needs to be done differently later on gamestart rather than setupboard
 
   gameState.drawPile = [...playerDeck.cards];
   shuffleDeck(gameState.drawPile);
 
-  //Add listener to the deck pile.
+  // Event Listeners
   document
     .getElementById("deck-pile")
     ?.addEventListener("click", () => drawCard(false));
-  //Add listener to the player hand
   document
     .getElementById("player-hand")
     ?.addEventListener("click", handleHandClick);
 
-  // End Turn listener
   const endTurnBtn = document.getElementById("end-turn-btn");
   if (endTurnBtn) {
     endTurnBtn.addEventListener("click", endPlayerTurn);
   }
 
+  setupSlotListeners();
+
+  // 1. Draw starting hand (4 cards)
   for (let i = 0; i < gameState.player.initialCardDraw; i++) {
     drawCard(true);
   }
 
+  // 2. Start Turn 1 (resets cardsDrawnThisTurn, adds energy, draws 1 turn card)
   startPlayerTurn();
 
   updateDeckUI();
-  renderStatsUI();
 }
 
 function handleHandClick(event) {
@@ -155,7 +156,13 @@ function shuffleDeck(array) {
 
 export function renderStatsUI() {
   const playerHpEl = document.getElementById("player-hp");
+  const enemyHp = document.getElementById("enemy-hp");
   const playerEnergyEl = document.getElementById("player-energy");
+
+  //This is where I was working
+  if (enemyHp) {
+    enemyHp.textContent = `${gameState.enemy.hp}/${gameState.enemy.maxHp}`;
+  }
 
   if (playerHpEl) {
     playerHpEl.textContent = `${gameState.player.hp}/${gameState.player.maxHp}`;
