@@ -1,8 +1,7 @@
 import { playerDeck } from "../data/playerDeck.js";
 import { createCard } from "../cardCreator.js";
-import { gameState } from "../state/gamestate.js";
-
-let drawPile = [];
+import { gameState } from "../state/gameState.js";
+import { handleEndTurn } from "./gameLoopController.js"; // ◄ Added to trigger your new combat loop
 
 export function setupBoard() {
   gameState.resetBoard();
@@ -21,12 +20,15 @@ export function setupBoard() {
 
   const endTurnBtn = document.getElementById("end-turn-btn");
   if (endTurnBtn) {
-    endTurnBtn.addEventListener("click", endPlayerTurn);
+    endTurnBtn.addEventListener("click", () => {
+      clearHandSelection(); // Drop selected card before combat starts
+      handleEndTurn(); // Hand control over to gameLoopController
+    });
   }
 
   setupSlotListeners();
 
-  // 1. Draw starting hand (4 cards)
+  // 1. Draw starting hand
   for (let i = 0; i < gameState.player.initialCardDraw; i++) {
     drawCard(true);
   }
@@ -34,6 +36,8 @@ export function setupBoard() {
   // 2. Start Turn 1 (resets cardsDrawnThisTurn, adds energy, draws 1 turn card)
   startPlayerTurn();
 
+  // 3. Render stats immediately so HP isn't blank on load!
+  renderStatsUI();
   updateDeckUI();
 }
 
@@ -49,8 +53,7 @@ function handleHandClick(event) {
   const isSelfSelected = gameState.selectedCardIndex === cardIndex;
 
   if (isSelfSelected) {
-    gameState.selectedCardIndex = null;
-    cardElement.classList.remove("selected");
+    clearHandSelection();
   } else {
     document
       .querySelectorAll("#player-hand .card")
@@ -59,6 +62,13 @@ function handleHandClick(event) {
     gameState.selectedCardIndex = cardIndex;
     cardElement.classList.add("selected");
   }
+}
+
+export function clearHandSelection() {
+  gameState.selectedCardIndex = null;
+  document
+    .querySelectorAll("#player-hand .card")
+    .forEach((c) => c.classList.remove("selected"));
 }
 
 function setupSlotListeners() {
@@ -90,8 +100,8 @@ function playSelectedCardToSlot(slotIndex, slotElement) {
   gameState.board.playerFront[slotIndex] = cardData;
   renderStatsUI();
   gameState.hand.splice(gameState.selectedCardIndex, 1);
-  gameState.selectedCardIndex = null; // Clear selection
 
+  clearHandSelection();
   renderHandUI();
   renderSlotUI(slotElement, cardData);
 }
@@ -144,11 +154,10 @@ function updateDeckUI() {
   }
 }
 
-//Found this online, it's apparently called a "fisher-yates shuffle"
+// Fisher-yates shuffle
 function shuffleDeck(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-
     [array[i], array[j]] = [array[j], array[i]];
   }
   return array;
@@ -156,13 +165,8 @@ function shuffleDeck(array) {
 
 export function renderStatsUI() {
   const playerHpEl = document.getElementById("player-hp");
-  const enemyHp = document.getElementById("enemy-hp");
   const playerEnergyEl = document.getElementById("player-energy");
-
-  //This is where I was working
-  if (enemyHp) {
-    enemyHp.textContent = `${gameState.enemy.hp}/${gameState.enemy.maxHp}`;
-  }
+  const enemyHpEl = document.getElementById("enemy-hp");
 
   if (playerHpEl) {
     playerHpEl.textContent = `${gameState.player.hp}/${gameState.player.maxHp}`;
@@ -170,6 +174,10 @@ export function renderStatsUI() {
 
   if (playerEnergyEl) {
     playerEnergyEl.textContent = `${gameState.player.energy}/${gameState.player.maxEnergy}`;
+  }
+
+  if (enemyHpEl && gameState.enemy) {
+    enemyHpEl.textContent = `${gameState.enemy.hp}/${gameState.enemy.maxHp}`;
   }
 }
 
@@ -189,15 +197,17 @@ export function startPlayerTurn() {
   renderStatsUI();
 }
 
-export function endPlayerTurn() {
-  // Clear any active card selection
-  gameState.selectedCardIndex = null;
-  document
-    .querySelectorAll("#player-hand .card")
-    .forEach((c) => c.classList.remove("selected"));
-
-  // (Future spot: Trigger Enemy AI turn / Combat resolution here)
-
-  // Pass turn back to player
-  startPlayerTurn();
+// Utility to disable End Turn button during enemy AI / animations
+export function setEndTurnButtonState(isEnabled) {
+  const btn = document.getElementById("end-turn-btn");
+  if (btn) {
+    btn.disabled = !isEnabled;
+    if (!isEnabled) {
+      btn.style.opacity = "0.5";
+      btn.style.cursor = "not-allowed";
+    } else {
+      btn.style.opacity = "1";
+      btn.style.cursor = "pointer";
+    }
+  }
 }

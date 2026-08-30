@@ -1,42 +1,27 @@
 import { executeSideCombat } from "../combat.js";
+import { setEndTurnButtonState, startPlayerTurn } from "./boardController.js";
 
 export async function handleEndTurn() {
-  // Disable the End Turn button so the player can't click it during animations
+  // 1. Lock the UI during combat
   setEndTurnButtonState(false);
 
-  // -------------------------------------------------------------
-  // STEP 3: PLAYER COMBAT PHASE
-  // -------------------------------------------------------------
-  // Only player cards attack right now.
+  // 2. Player Combat Phase
+  console.log("--- PLAYER COMBAT PHASE ---");
   await executeSideCombat("player");
 
-  // Check if CPU died from player's attack
-  if (gameState.enemy.hp <= 0) {
-    handleMatchEnd(true); // Player Wins!
-    return;
-  }
+  // 3. CPU Turn Setup (Placeholder for now)
+  console.log("--- CPU TURN PHASE ---");
+  // TODO: Move backline forward
+  // TODO: Play new cards
 
-  // -------------------------------------------------------------
-  // STEP 4: CPU TURN
-  // -------------------------------------------------------------
-  // 4a. Move backline cards forward into empty frontline slots
-  await moveCpuBacklineForward();
-
-  // 4b. CPU plays new cards into the backline from its deck/hand
-  await executeCpuAIPlayCards();
-
-  // 4c/d. CPU COMBAT PHASE - Now CPU cards attack!
+  // 4. CPU Combat Phase
+  console.log("--- CPU COMBAT PHASE ---");
   await executeSideCombat("enemy");
 
-  // Check if Player died from CPU's attack
-  if (gameState.player.hp <= 0) {
-    handleMatchEnd(false); // Player Lost!
-    return;
-  }
-
-  // -------------------------------------------------------------
-  // STEP 5: RETURN TURN TO PLAYER
-  // -------------------------------------------------------------
+  // 5. Pass turn back to player
+  console.log("--- NEW PLAYER TURN ---");
   startPlayerTurn();
-  setEndTurnButtonState(true); // Re-enable End Turn button
+
+  // 6. Unlock the UI
+  setEndTurnButtonState(true);
 }
