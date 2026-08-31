@@ -151,7 +151,7 @@ async function resolveSingleHit(
   defenderBackKey,
   defenderFace,
 ) {
-  // Re-evaluate target on EVERY hit (crucial for multi-strike!)
+  // Re-evaluate target on EVERY hit (for multi-strike)
   const target = resolveTargetForSlot(
     attacker,
     targetSlotIdx,
