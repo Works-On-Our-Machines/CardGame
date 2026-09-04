@@ -1,27 +1,25 @@
 import { executeSideCombat } from "../combat.js";
 import { setEndTurnButtonState, startPlayerTurn } from "./boardController.js";
+import { executeCpuTurn } from "./cpuController.js"; // ◄ Import here
 
 export async function handleEndTurn() {
-  // 1. Lock the UI during combat
   setEndTurnButtonState(false);
 
-  // 2. Player Combat Phase
+  // 1. Player Combat Phase
   console.log("--- PLAYER COMBAT PHASE ---");
   await executeSideCombat("player");
 
-  // 3. CPU Turn Setup (Placeholder for now)
+  // 2. CPU Turn Phase (Shifts backline, checks phases, plays cards)
   console.log("--- CPU TURN PHASE ---");
-  // TODO: Move backline forward
-  // TODO: Play new cards
+  await executeCpuTurn();
 
-  // 4. CPU Combat Phase
+  // 3. CPU Combat Phase
   console.log("--- CPU COMBAT PHASE ---");
   await executeSideCombat("enemy");
 
-  // 5. Pass turn back to player
+  // 4. Start New Player Turn
   console.log("--- NEW PLAYER TURN ---");
   startPlayerTurn();
 
-  // 6. Unlock the UI
   setEndTurnButtonState(true);
 }
