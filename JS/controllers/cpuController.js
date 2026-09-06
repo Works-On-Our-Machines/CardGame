@@ -1,7 +1,7 @@
 import { gameState } from "../state/gameState.js";
 import { encounters } from "../data/encounters.js";
 import { encounterDecks } from "../data/encounterDecks.js";
-import { cardsDatabase } from "../data/cardsdatabase.js";
+import { cardDatabase } from "../data/cardsdatabase.js";
 import { updateBoardSlotsUI } from "../combat.js";
 
 // Internal CPU State Tracker
