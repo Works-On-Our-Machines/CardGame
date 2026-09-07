@@ -120,6 +120,7 @@ function resolveTargetForSlot(
   }
 
   // GROUND / STANDARD LOGIC
+  // If a frontline card is present, it shields the face (and takes the hit).
   if (frontCard) {
     return {
       type: "card",
@@ -128,16 +129,8 @@ function resolveTargetForSlot(
       index: targetSlotIdx,
     };
   }
-  if (backCard) {
-    return {
-      type: "card",
-      card: backCard,
-      laneKey: defenderBackKey,
-      index: targetSlotIdx,
-    };
-  }
 
-  // Empty slot -> Hit Face
+  // Frontline is empty -> Line of sight is open! Hit Face directly.
   return { type: "face" };
 }
 

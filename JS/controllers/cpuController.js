@@ -12,13 +12,15 @@ let cpuTurnCount = 0;
 let surrenderPromptShown = false;
 
 /**
- * Helper to clone a fresh card object from cardsdatabase.js
+ * Helper to clone a fresh card object from carddatabase.js
  */
 function createCardInstance(cardId) {
   if (!cardId) return null;
-  const template = cardsDatabase[cardId];
+
+  const template = cardDatabase.find((card) => card.id === cardId);
+
   if (!template) {
-    console.error(`Card ID "${cardId}" not found in cardsdatabase.js!`);
+    console.error(`Card ID "${cardId}" not found in carddatabase.js!`);
     return null;
   }
   // Return deep copy so HP changes don't mutate the database template

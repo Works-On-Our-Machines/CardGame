@@ -2,6 +2,7 @@ import { playerDeck } from "../data/playerDeck.js";
 import { createCard } from "../cardCreator.js";
 import { gameState } from "../state/gameState.js";
 import { handleEndTurn } from "./gameLoopController.js"; // ◄ Added to trigger your new combat loop
+import { loadEncounter } from "./cpuController.js";
 
 export function setupBoard() {
   gameState.resetBoard();
@@ -24,6 +25,8 @@ export function setupBoard() {
       clearHandSelection(); // Drop selected card before combat starts
       handleEndTurn(); // Hand control over to gameLoopController
     });
+
+    loadEncounter("0001");
   }
 
   setupSlotListeners();
