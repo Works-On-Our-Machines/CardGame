@@ -1,5 +1,6 @@
 export const gameState = {
   selectedCardIndex: null,
+  turnPhase: "PLAY",
 
   player: {
     hp: 10,
@@ -15,7 +16,6 @@ export const gameState = {
   enemy: {
     hp: 10,
     maxHp: 10,
-    energy: 3,
   },
 
   board: {
@@ -25,14 +25,18 @@ export const gameState = {
   },
 
   drawPile: [],
+  freePile: [],
   hand: [],
   discardPile: [],
 
   resetBoard() {
     this.selectedCardIndex = null;
+    this.turnPhase = "PLAY"; // Reset phase
 
     this.player.hp = 10;
     this.player.energy = 1;
+    this.player.cardsDrawnThisTurn = 0; // Reset draw tracker
+
     this.enemy.hp = 10;
     this.enemy.energy = 3;
 
@@ -41,6 +45,7 @@ export const gameState = {
     this.board.playerFront = [null, null, null, null];
 
     this.drawPile = [];
+    this.freePile = []; // Clear free pile
     this.hand = [];
     this.discardPile = [];
   },

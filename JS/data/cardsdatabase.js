@@ -1,5 +1,14 @@
 export const cardDatabase = [
   {
+    id: "card_000",
+    name: "The Free Card",
+    cost: 0,
+    portrait: "../Assets/CardPortraits/PlaceholderPortrait.png",
+    specialRule: "None",
+    atk: 0,
+    hp: 1,
+  },
+  {
     id: "card_001",
     name: "The Default Test Card",
     cost: 1,

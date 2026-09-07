@@ -12,13 +12,11 @@
   <body>
     <div class="main-container row justify-center align-center padding-1">
       <div class="left-side margin-1">
-
         <div class="hpEnergy">
           <div class="hp">
             <p>Enemy HP: <span id="enemy-hp">10/10</span></p>
           </div>
         </div>
-
 
         <div class="actions">
           <span>Actions</span>
@@ -103,8 +101,24 @@
 
       <!-- Right Side Panel (Deck / Discard Piles) -->
       <div class="right-side margin-1">
-        <div id="deck-pile" class="player-deck">
-          <span>Deck (0)</span>
+        <div class="decks-container">
+          <!-- Main Deck Pile -->
+          <div
+            id="deck-pile"
+            class="deck-pile main-deck"
+            title="Draw from Main Deck"
+          >
+            Deck (0)
+          </div>
+
+          <!-- Free / Squirrel Deck Pile -->
+          <div
+            id="free-deck-pile"
+            class="deck-pile free-deck"
+            title="Draw Free Card"
+          >
+            Free Cards (0)
+          </div>
         </div>
       </div>
     </div>

@@ -1,20 +1,31 @@
 import { playerDeck } from "../data/playerDeck.js";
 import { createCard } from "../cardCreator.js";
 import { gameState } from "../state/gameState.js";
-import { handleEndTurn } from "./gameLoopController.js"; // ◄ Added to trigger your new combat loop
+import { handleEndTurn } from "./gameLoopController.js";
 import { loadEncounter } from "./cpuController.js";
+import { cardDatabase } from "../data/cardsdatabase.js";
 
 export function setupBoard() {
   gameState.resetBoard();
   playerDeck.initStartingDeck(); //This needs to be done differently later on gamestart rather than setupboard
 
+  //Create the deck draw pile
   gameState.drawPile = [...playerDeck.cards];
   shuffleDeck(gameState.drawPile);
+
+  //Here we create the free card draw pile. Note that we are setting the quantity of squirrels in the deck here with the 10.
+  const freeCardTemplate = cardDatabase.find((c) => c.id === "card_000");
+  for (let i = 0; i < 10; i++) {
+    gameState.freePile.push({ ...freeCardTemplate });
+  }
 
   // Event Listeners
   document
     .getElementById("deck-pile")
-    ?.addEventListener("click", () => drawCard(false));
+    ?.addEventListener("click", () => drawCard(false, "main"));
+  document
+    .getElementById("free-deck-pile")
+    ?.addEventListener("click", () => drawCard(false, "free")); // ◄ NEW listener
   document
     .getElementById("player-hand")
     ?.addEventListener("click", handleHandClick);
@@ -25,21 +36,22 @@ export function setupBoard() {
       clearHandSelection(); // Drop selected card before combat starts
       handleEndTurn(); // Hand control over to gameLoopController
     });
-
-    loadEncounter("0001");
   }
-
+  loadEncounter("0001");
   setupSlotListeners();
 
-  // 1. Draw starting hand
+  // Draw starting hand
   for (let i = 0; i < gameState.player.initialCardDraw; i++) {
-    drawCard(true);
+    drawCard(true, "main");
   }
 
-  // 2. Start Turn 1 (resets cardsDrawnThisTurn, adds energy, draws 1 turn card)
-  startPlayerTurn();
+  //Draw the free card
+  drawCard(true, "free");
 
-  // 3. Render stats immediately so HP isn't blank on load!
+  // 3. Start game in PLAY phase so they can use their initial hand
+  gameState.turnPhase = "PLAY";
+  gameState.player.energy = gameState.player.maxEnergy; // Ensure they have starting energy
+
   renderStatsUI();
   updateDeckUI();
 }
@@ -86,19 +98,23 @@ function setupSlotListeners() {
 }
 
 function playSelectedCardToSlot(slotIndex, slotElement) {
-  if (gameState.selectedCardIndex === null) return; // No card selected fallback
-  if (gameState.board.playerFront[slotIndex] !== null) return; // if slot occupied
+  // ◄ NEW: Block playing cards if still in Draw Phase
+  if (gameState.turnPhase === "DRAW") {
+    console.warn("You must finish drawing cards first!");
+    return;
+  }
+
+  if (gameState.selectedCardIndex === null) return;
+  if (gameState.board.playerFront[slotIndex] !== null) return;
 
   const cardData = gameState.hand[gameState.selectedCardIndex];
-
-  // Energy Check defaults to 1 if unset
   const cardCost = cardData.cost ?? 1;
+
   if (gameState.player.energy < cardCost) {
     console.warn("Not enough energy!");
     return;
   }
 
-  // Reduce energy & update state arrays
   gameState.player.energy -= cardCost;
   gameState.board.playerFront[slotIndex] = cardData;
   renderStatsUI();
@@ -125,9 +141,12 @@ function renderSlotUI(slotElement, cardData) {
   slotElement.appendChild(cardEl);
 }
 
-export function drawCard(isEffect = false) {
-  if (gameState.drawPile.length === 0) {
-    console.warn("Your deck is empty!");
+export function drawCard(isEffect = false, deckType = "main") {
+  const targetPile =
+    deckType === "free" ? gameState.freePile : gameState.drawPile;
+
+  if (targetPile.length === 0) {
+    console.warn(`Your ${deckType} deck is empty!`);
     return;
   }
 
@@ -139,11 +158,21 @@ export function drawCard(isEffect = false) {
     return;
   }
 
-  const cardData = gameState.drawPile.pop();
+  const cardData = targetPile.pop();
   gameState.hand.push(cardData);
 
   if (!isEffect) {
     gameState.player.cardsDrawnThisTurn++;
+
+    // --- NEW: PHASE UNLOCK LOGIC ---
+    // If they hit their draw limit, switch to PLAY phase and unlock button
+    if (
+      gameState.player.cardsDrawnThisTurn >= gameState.player.cardDrawPerTurn
+    ) {
+      gameState.turnPhase = "PLAY";
+      setEndTurnButtonState(true);
+      console.log("Draw Phase complete. Entering PLAY Phase.");
+    }
   }
 
   renderHandUI();
@@ -152,8 +181,13 @@ export function drawCard(isEffect = false) {
 
 function updateDeckUI() {
   const deckSlot = document.getElementById("deck-pile");
+  const freeDeckSlot = document.getElementById("free-deck-pile"); // ◄ NEW
+
   if (deckSlot) {
     deckSlot.textContent = `Deck (${gameState.drawPile.length})`;
+  }
+  if (freeDeckSlot) {
+    freeDeckSlot.textContent = `Free Cards (${gameState.freePile.length})`;
   }
 }
 
@@ -186,18 +220,18 @@ export function renderStatsUI() {
 
 export function startPlayerTurn() {
   gameState.player.cardsDrawnThisTurn = 0;
+  gameState.turnPhase = "DRAW"; // ◄ Lock the game in Draw Phase!
 
   gameState.player.energy = Math.min(
     gameState.player.maxEnergy,
     gameState.player.energy + gameState.player.energyGain,
   );
 
-  // Draw starting card(s) for the turn
-  for (let i = 0; i < gameState.player.cardDrawPerTurn; i++) {
-    drawCard(false);
-  }
-
   renderStatsUI();
+
+  // Lock the End Turn button until they draw
+  setEndTurnButtonState(false);
+  console.log("Draw Phase: Please draw a card from either deck.");
 }
 
 // Utility to disable End Turn button during enemy AI / animations
