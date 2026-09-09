@@ -6,7 +6,7 @@ import { cardDatabase } from "./cardsdatabase.js";
  */
 export const encounterDecks = {
   // Phase 1 testing deck: Low-level aggressive minions
-  test_deck_01: ["card_001", "card_001"],
+  test_deck_01: ["card_001", "card_001", "card_001", "card_001"],
 
   // Phase 2 testing deck: Heavier unit / Boss phase
   test_deck_boss: ["card_001", "card_002", "card_003"],

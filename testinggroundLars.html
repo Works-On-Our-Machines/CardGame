@@ -1,30 +1,99 @@
-<!-- Dette dokumentet inneholder bare random ting og kommer til å være helt forskjellig mellom hver gang jeg jobber på noe.
-  Ikke bruk som referanse til noe som helst, dette er bare for testing. -->
 <!doctype html>
-<html lang="en">
+<html lang="nb">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Testing Grounds Lars</title>
-    <link rel="stylesheet" href="CSS/cards.css" />
-  </head>
-  <body>
-    <script type="module">
-      import { cardDatabase } from "./JS/data/cardsdatabase.js";
-      import { createCard } from "./JS/cardCreator.js";
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Proporsjonal skalering</title>
 
-      const targetCardData = cardDatabase.find(
-        (card) => card.name === "The Defensive Test Card",
-      );
-
-      if (targetCardData) {
-        const myNewCard = createCard(targetCardData);
-        document.body.appendChild(myNewCard);
-      } else {
-        console.warn(
-          "Targetted card was not found. Did you enter the correct name?",
-        );
+    <style>
+      * {
+        box-sizing: border-box;
       }
-    </script>
+
+      body {
+        margin: 0;
+        padding: 24px;
+        font-family: system-ui, sans-serif;
+        background: #eef2f6;
+      }
+
+      .testområde {
+        width: 600px;
+        max-width: 100%;
+        min-width: 200px;
+        resize: horizontal;
+        overflow: auto;
+        border: 2px dashed #8794a8;
+      }
+
+      .parent {
+        width: 100%;
+        container-type: inline-size;
+      }
+
+      .kort {
+        width: 100%;
+        aspect-ratio: 2 / 1;
+        display: grid;
+        align-items: center;
+
+        gap: 4cqw;
+        padding: 5cqw;
+        border-radius: 3cqw;
+
+        color: #17243b;
+        background: white;
+      }
+
+      .bilde {
+        display: block;
+        width: 32cqw;
+        height: 32cqw;
+        flex-shrink: 0;
+        object-fit: cover;
+        border-radius: 2cqw;
+      }
+
+      .tekst {
+        flex: 1;
+        min-width: 0;
+      }
+
+      h1 {
+        margin: 0 0 2cqw;
+        font-size: 5cqw;
+        line-height: 1.1;
+      }
+
+      .tekst p {
+        margin: 0;
+        font-size: 2.8cqw;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+
+  <body>
+    <p>Dra i nedre høyre hjørne av boksen ↔</p>
+
+    <div class="testområde">
+      <div class="parent">
+        <article class="kort">
+          <img
+            class="bilde"
+            alt="Illustrasjon av fjell og sol"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23dbeafe'/%3E%3Ccircle cx='145' cy='50' r='23' fill='%23fbbf24'/%3E%3Cpath d='M0 200L75 65L145 200Z' fill='%233b82f6'/%3E%3Cpath d='M70 200L145 105L200 200Z' fill='%231e40af'/%3E%3C/svg%3E"
+          />
+
+          <div class="tekst">
+            <h1>Alt skalerer sammen</h1>
+            <p>
+              Bilde, tekst og luft følger bredden på parenten, uansett hvor
+              kortet plasseres.
+            </p>
+          </div>
+        </article>
+      </div>
+    </div>
   </body>
 </html>

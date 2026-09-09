@@ -232,6 +232,7 @@ export function startPlayerTurn() {
 
   // Lock the End Turn button until they draw
   // This doesn't actually work
+  // It works now in other places, but leaving it here because Im worried to remove it
   setEndTurnButtonState(false);
   console.log("Draw Phase: Please draw a card from either deck.");
 }

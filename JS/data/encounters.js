@@ -56,7 +56,7 @@ export const testEncounter01 = {
       transitionTriggers: [{ type: "deck_empty" }],
 
       isOrderedPlay: false, // false = shuffle deck on phase start; true = draw in exact order
-      drawRange: [1, 2], // [min, max] cards drawn and played each turn
+      drawRange: [1, 1], // [min, max] cards drawn and played each turn
       rampUpEveryXTurns: 0, // Every X turns, increase draw count (0 = disabled)
       rampUpBonus: 0, // Extra cards added to draw count when ramping up
       deckId: "test_deck_01", // Key pointing to JS/data/encounterDecks.js
