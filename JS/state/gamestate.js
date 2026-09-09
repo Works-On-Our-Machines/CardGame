@@ -6,6 +6,7 @@ export const gameState = {
     hp: 10,
     maxHp: 10,
     energy: 1,
+    startingEnergy: 2,
     energyGain: 1,
     maxEnergy: 3,
     cardDrawPerTurn: 1,

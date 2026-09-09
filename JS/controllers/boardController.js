@@ -50,7 +50,7 @@ export function setupBoard() {
 
   // 3. Start game in PLAY phase so they can use their initial hand
   gameState.turnPhase = "PLAY";
-  gameState.player.energy = gameState.player.maxEnergy; // Ensure they have starting energy
+  gameState.player.energy = gameState.player.startingEnergy; // Ensure they have starting energy
 
   renderStatsUI();
   updateDeckUI();
@@ -230,6 +230,7 @@ export function startPlayerTurn() {
   renderStatsUI();
 
   // Lock the End Turn button until they draw
+  // This doesn't actually work
   setEndTurnButtonState(false);
   console.log("Draw Phase: Please draw a card from either deck.");
 }

@@ -267,7 +267,7 @@ body,
   background: rgba(255, 255, 255, 0.02);
 
   border: 1px dashed rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  border-radius: 2px;
 
   /*
    * Exactly four card columns.
@@ -325,7 +325,10 @@ body,
 
   overflow: hidden;
 
+  margin: 5px;
+
   transition: border-color 0.2s ease;
+
 }
 
 .card-slot:hover {

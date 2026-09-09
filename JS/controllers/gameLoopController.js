@@ -1,6 +1,6 @@
 import { executeSideCombat } from "../combat.js";
 import { setEndTurnButtonState, startPlayerTurn } from "./boardController.js";
-import { executeCpuTurn } from "./cpuController.js"; // ◄ Import here
+import { executeCpuTurn } from "./cpuController.js"; // 
 
 export async function handleEndTurn() {
   setEndTurnButtonState(false);
