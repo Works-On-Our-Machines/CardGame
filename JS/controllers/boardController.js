@@ -49,15 +49,17 @@ export function setupBoard() {
   //Draw the free card
   drawCard(true, "free");
 
-  // 3. Start game in PLAY phase so they can use their initial hand
-  gameState.turnPhase = "PLAY";
-  gameState.player.energy = gameState.player.startingEnergy; // Ensure they have starting energy
-
+  gameState.turnPhase = "DRAW";
+  
   renderStatsUI();
   updateDeckUI();
+  startPlayerTurn();
+  gameState.player.energy = gameState.player.startingEnergy; // Ensure they have starting energy
 }
 
 function handleHandClick(event) {
+  if (gameState.turnPhase !== "PLAY") return;
+
   const cardElement = event.target.closest(".card");
   if (!cardElement) return;
 
@@ -176,6 +178,7 @@ export function drawCard(isEffect = false, deckType = "main") {
     }
   }
 
+  setDeckHighlight(false);
   renderHandUI();
   updateDeckUI();
 }
@@ -235,6 +238,35 @@ export function startPlayerTurn() {
   // It works now in other places, but leaving it here because Im worried to remove it
   setEndTurnButtonState(false);
   console.log("Draw Phase: Please draw a card from either deck.");
+
+  setDeckHighlight(true);
+}
+
+//This is for adding the glow on the draw piles
+function setDeckHighlight(isGlowing) {
+  const mainDeck = document.querySelector(".main-deck");
+  const freeDeck = document.querySelector(".free-deck");
+
+  if (isGlowing) {
+    mainDeck?.classList.add("main-deckHighlighted");
+    freeDeck?.classList.add("free-deckHighlighted");
+  } else {
+    mainDeck?.classList.remove("main-deckHighlighted");
+    freeDeck?.classList.remove("free-deckHighlighted");
+  }
+}
+
+export function handleDeckClick(deckType) {
+  if (gameState.turnPhase !== "DRAW") return;
+
+  // ... execute card draw logic here ...
+
+  // Transition to play phase and enable End Turn
+  gameState.turnPhase = "PLAY";
+  setEndTurnButtonState(true);
+
+  // Remove deck highlights
+  setDeckHighlight(false);
 }
 
 // Utility to disable End Turn button during enemy AI / animations

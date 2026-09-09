@@ -438,6 +438,9 @@ body,
   box-shadow: 3px 7px 0px rgba(0, 0, 0, 0.4);
 }
 
+.main-deckHighlighted {
+  outline: 0.2cqw solid #5f82a5;
+}
 
 /* =========================================================
    FREE / SQUIRREL DECK
@@ -459,6 +462,9 @@ body,
   box-shadow: 3px 7px 0px rgba(0, 0, 0, 0.4);
 }
 
+.free-deckHighlighted {
+  outline: 0.2cqw solid #eb660e;
+}
 
 /* =========================================================
    CLICK ACTIVE EFFECT

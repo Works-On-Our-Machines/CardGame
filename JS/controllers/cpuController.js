@@ -231,7 +231,7 @@ function selectBacklineSlot() {
   const backSlots = gameState.board.enemyBack;
   const playerFrontSlots = gameState.board.playerFront;
 
-  // Pass 1: Counter-player (slot opposite an occupied player slot where backline is empty)
+  // Pass 1: Counter-player (slots opposite an occupied player slot)
   const counterSlots = [];
   for (let i = 0; i < 4; i++) {
     if (backSlots[i] === null && playerFrontSlots[i] !== null) {
@@ -243,7 +243,7 @@ function selectBacklineSlot() {
     return counterSlots[Math.floor(Math.random() * counterSlots.length)];
   }
 
-  // Pass 2: Fallback (any empty backline slot)
+  // Pass 2: Fallback (any random empty backline slot)
   const emptySlots = [];
   for (let i = 0; i < 4; i++) {
     if (backSlots[i] === null) {
@@ -255,7 +255,7 @@ function selectBacklineSlot() {
     return emptySlots[Math.floor(Math.random() * emptySlots.length)];
   }
 
-  return -1; // No empty backline slots
+  return -1; // No empty backline slots available
 }
 
 function shuffleArray(array) {

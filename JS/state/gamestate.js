@@ -32,7 +32,7 @@ export const gameState = {
 
   resetBoard() {
     this.selectedCardIndex = null;
-    this.turnPhase = "PLAY"; // Reset phase
+    this.turnPhase = "DRAW"; // Reset phase
 
     this.player.hp = 10;
     this.player.energy = 1;
