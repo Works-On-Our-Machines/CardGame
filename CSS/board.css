@@ -1,3 +1,7 @@
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+
 *,
 *::before,
 *::after {
@@ -7,47 +11,86 @@
 html,
 body,
 #app {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
+
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Stops content from expanding the browser viewport */
-  box-sizing: border-box;
+
+  overflow: hidden;
 }
+
+
+/* =========================================================
+   MAIN CONTAINER
+   ========================================================= */
 
 .main-container {
   width: 100%;
   height: 100%;
+
   display: flex;
+
   overflow: hidden;
 }
 
+
+/* =========================================================
+   LEFT / RIGHT SIDES
+   ========================================================= */
+
 .left-side,
 .right-side {
+  /*
+   * These panels always occupy exactly 15% of the screen.
+   * Their contents cannot change the width of the board.
+   */
+  flex: 0 0 15%;
+
   width: 15%;
+
+  min-width: 0;
+  min-height: 0;
+
   display: flex;
   flex-direction: column;
+
   justify-content: center;
   align-items: center;
+
   gap: 2rem;
+
+  overflow: hidden;
 }
+
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
 
 .actions {
   display: flex;
   flex-direction: column;
+
   gap: 0.5rem;
+
   margin-bottom: 1rem;
 }
 
 .btn-action {
   padding: 0.6rem 1rem;
+
   background-color: #2e3440;
   color: #ffffff;
+
   border: 1px solid #4c566a;
   border-radius: 6px;
+
   font-weight: bold;
   font-size: 0.9rem;
+
   cursor: pointer;
+
   transition:
     background-color 0.2s ease,
     transform 0.1s ease;
@@ -62,166 +105,364 @@ body,
   transform: scale(0.97);
 }
 
+
+/* =========================================================
+   PLAYER DECK
+   ========================================================= */
+
 .player-deck {
+  width: 100%;
+  height: 20vh;
+
+  flex: 0 0 auto;
+
   background: #1f242d;
+
   display: flex;
   flex-direction: column;
-  border: 1px solid #3b4252;
-  border-radius: 8px;
-  height: 20vh;
+
   align-items: center;
   justify-content: center;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
-}
 
-.hpEnergy {
-  background: #1f242d;
   border: 1px solid #3b4252;
   border-radius: 8px;
-  height: 15vh;
+
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   HP / ENERGY
+   ========================================================= */
+
+.hpEnergy {
   width: 100%;
+  height: 15vh;
+
+  flex: 0 0 auto;
+
+  background: #1f242d;
+
+  border: 1px solid #3b4252;
+  border-radius: 8px;
+
   display: flex;
   align-items: center;
   justify-content: space-around;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+
   gap: 1rem;
+
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+
+  overflow: hidden;
 }
 
 .hp,
 .energy {
-  background-color: #4a515e;
-  height: auto;
-  padding: 4px 8px;
-  border-radius: 4px;
   width: fit-content;
   min-width: 20%;
+
+  height: auto;
+
+  padding: 4px 8px;
+
+  background-color: #4a515e;
+
+  border-radius: 4px;
 }
+
+
+/* =========================================================
+   BOARD
+   ========================================================= */
 
 .board {
+  /*
+   * The board occupies exactly the space between the
+   * left and right side panels.
+   */
+  flex: 1 1 0;
+
+  width: auto;
   height: 100%;
-  width: 70%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 0;
+
+  min-width: 0;
   min-height: 0;
+
+  display: grid;
+
+  /*
+   * The playable area gets all remaining space.
+   *
+   * The hand gets its own predictable height.
+   */
+  grid-template-rows:
+    minmax(0, 1fr)
+    clamp(220px, 28vh, 320px);
+
+  gap: 1rem;
+
+  padding: 1rem 0;
+
+  overflow: hidden;
 }
 
+
+/* =========================================================
+   LANES CONTAINER
+   ========================================================= */
+
 .lanes {
-  flex: 1;
+  width: 100%;
+  height: 100%;
+
+  min-width: 0;
+  min-height: 0;
+
   background: #181b20;
+
   border: 1px solid #2e3440;
   border-radius: 12px;
-  padding: 1em;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
+
+  padding: 1rem;
+
+  display: grid;
+
+  /*
+   * THREE LANES.
+   *
+   * Every lane gets exactly one third of the available
+   * vertical space.
+   *
+   * Empty lanes and occupied lanes are therefore identical
+   * in size.
+   */
+  grid-template-rows:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 1rem;
+
+  overflow: hidden;
 }
+
+
+/* =========================================================
+   INDIVIDUAL LANES
+   ========================================================= */
 
 .lane-enemy,
 .lane-player {
-  height: 100%;
+  /*
+   * Every lane is controlled entirely by the grid row.
+   * Contents cannot make it larger or smaller.
+   */
   width: 100%;
-  border-radius: 8px;
+  height: 100%;
+
+  min-width: 0;
+  min-height: 0;
+
   background: rgba(255, 255, 255, 0.02);
+
   border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+
+  /*
+   * Exactly four card columns.
+   *
+   * Empty columns still occupy exactly the same space
+   * as occupied columns.
+   */
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  align-items: center;
+  justify-items: center;
+
+  gap: 1rem;
+
+  overflow: hidden;
 }
 
+
+/* =========================================================
+   CARD SLOTS
+   ========================================================= */
+
 .card-slot {
-  height: 100%;
-  max-height: 100%;
+  /*
+   * The HEIGHT determines the card's overall size.
+   *
+   * Width is then derived entirely from the 5:8 aspect ratio.
+   */
+  height: 85%;
+  width: auto;
+
   aspect-ratio: 5 / 8;
-  border: 2px dashed rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
+
+  min-width: 0;
+  min-height: 0;
+
+  /*
+   * The slot cannot escape its grid cell.
+   */
+  max-height: 85%;
+  max-width: 100%;
+
   display: flex;
+
   align-items: center;
   justify-content: center;
+
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+
   color: #666;
+
+  overflow: hidden;
+
   transition: border-color 0.2s ease;
-  box-sizing: border-box;
 }
 
 .card-slot:hover {
   border-color: rgba(255, 255, 255, 0.3);
 }
 
+
+/* =========================================================
+   PLAYER HAND
+   ========================================================= */
+
 .player-hand {
-  height: 25%;
-  flex-shrink: 0;
+  width: 100%;
+  height: 100%;
+
+  min-width: 0;
+  min-height: 0;
+
   background: #181b20;
+
   border: 1px solid #2e3440;
-  border-radius: 12px;
+  border-radius: 8px;
+
   display: flex;
+
   align-items: center;
   justify-content: center;
-  gap: 12px;
+
+  gap: 8px;
+
   padding: 10px;
+
   overflow-x: auto;
+  overflow-y: hidden;
 }
 
-/* Decks Layout Container */
+
+/* =========================================================
+   DECKS LAYOUT CONTAINER
+   ========================================================= */
+
 .decks-container {
+  width: 100%;
+
   display: flex;
   flex-direction: column;
+
   gap: 16px;
+
   align-items: center;
   justify-content: center;
-  width: 100%;
 }
 
-/* Shared Deck Card Base Styling */
+
+/* =========================================================
+   SHARED DECK CARD BASE
+   ========================================================= */
+
 .deck-pile {
-  width: 250px;
-  height: 350px;
+  width: 180px;
+  height: 250px;
+
   border-radius: 8px;
+
   display: flex;
+
   align-items: center;
   justify-content: center;
+
   text-align: center;
+
   font-family: inherit;
   font-weight: bold;
-  font-size: 13px;
+  font-size: 12px;
+
   cursor: pointer;
   user-select: none;
-  box-sizing: border-box;
+
   padding: 8px;
+
   box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.4);
+
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease,
     border-color 0.15s ease;
 }
 
-/* Main Deck (Blue / Arcane Theme) */
+
+/* =========================================================
+   MAIN DECK
+   ========================================================= */
+
 .main-deck {
   background: linear-gradient(135deg, #2c3e50, #1a252f);
+
   color: #ecf0f1;
+
   border: 2px solid #34495e;
 }
 
 .main-deck:hover {
   transform: translateY(-4px);
+
   border-color: #3498db;
+
   box-shadow: 3px 7px 0px rgba(0, 0, 0, 0.4);
 }
 
-/* Free / Squirrel Deck (Earthy / Wood Theme) */
+
+/* =========================================================
+   FREE / SQUIRREL DECK
+   ========================================================= */
+
 .free-deck {
   background: linear-gradient(135deg, #4a2e1b, #2d1b0e);
+
   color: #f1c40f;
+
   border: 2px solid #d35400;
 }
 
 .free-deck:hover {
   transform: translateY(-4px);
+
   border-color: #f39c12;
+
   box-shadow: 3px 7px 0px rgba(0, 0, 0, 0.4);
 }
 
-/* Click Active Effect */
+
+/* =========================================================
+   CLICK ACTIVE EFFECT
+   ========================================================= */
+
 .deck-pile:active {
   transform: translateY(0);
+
   box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.4);
 }
