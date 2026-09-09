@@ -21,5 +21,5 @@ export async function handleEndTurn() {
   console.log("--- NEW PLAYER TURN ---");
   startPlayerTurn();
 
-  setEndTurnButtonState(true);
+  setEndTurnButtonState(false);
 }

@@ -152,7 +152,7 @@
   /*
    * Scales with the card rather than the viewport.
    */
-  font-size: clamp(0.6rem, 5cqw, 0.9rem);
+  font-size: clamp(0.6em, 5cqw, 0.9em);
 
   font-weight: bold;
 

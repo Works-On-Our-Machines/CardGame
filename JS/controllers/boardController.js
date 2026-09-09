@@ -9,6 +9,7 @@ export function setupBoard() {
   gameState.resetBoard();
   playerDeck.initStartingDeck(); //This needs to be done differently later on gamestart rather than setupboard
 
+  setEndTurnButtonState(false);
   //Create the deck draw pile
   gameState.drawPile = [...playerDeck.cards];
   shuffleDeck(gameState.drawPile);
@@ -238,6 +239,7 @@ export function startPlayerTurn() {
 // Utility to disable End Turn button during enemy AI / animations
 export function setEndTurnButtonState(isEnabled) {
   const btn = document.getElementById("end-turn-btn");
+  console.log(btn.disabled);
   if (btn) {
     btn.disabled = !isEnabled;
     if (!isEnabled) {
