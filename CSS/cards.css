@@ -3,68 +3,39 @@
    ========================================================= */
 
 .card {
-
   aspect-ratio: 5 / 8;
-
   width: 100%;
   height: 100%;
-
   min-width: 0;
   min-height: 0;
-
   max-width: 100%;
   max-height: 100%;
 
   background-color: rgb(181, 182, 172);
-
   border: 0.1cqw solid #acacac;
   border-radius: 0.2rem;
-
   padding: 0.1rem;
-
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 
-
-  /* -------------------------------------------------------
-     Container Query
-     ------------------------------------------------------- */
-
-  /*
-   * Allows text and other internal elements to scale
-   * according to the actual size of the card.
-   */
   container-type: inline-size;
-
-
-  /* -------------------------------------------------------
-     Internal card layout
-     ------------------------------------------------------- */
-
   display: grid;
 
-  /*
-   * Fixed proportional regions.
-   *
-   * Header   = 12%
+  /* 
+   * 3-ROW GRID
+   * Header = 12%
    * Portrait = 35%
-   * Specials = remaining space
-   * Stats    = 12%
+   * Specials + Stats = Remaining space
    */
   grid-template-rows:
     12%
     35%
-    minmax(0, 1fr)
-    12%;
+    minmax(0, 1fr);
 
   gap: 0.2cqw;
-
   position: relative;
-
   color: #ffffff;
-
   overflow: hidden;
 }
-
 
 /* =========================================================
    CARDS INSIDE BOARD SLOTS
@@ -86,7 +57,6 @@
   min-height: 0;
 }
 
-
 /* =========================================================
    CARDS INSIDE PLAYER HAND
    ========================================================= */
@@ -105,7 +75,6 @@
 
   flex: 0 0 auto;
 }
-
 
 /* =========================================================
    CARD HEADER
@@ -168,7 +137,6 @@
   margin-left: 4cqw;
 }
 
-
 /* =========================================================
    CARD PORTRAIT
    ========================================================= */
@@ -201,7 +169,6 @@
   object-fit: cover;
 }
 
-
 /* =========================================================
    CARD SPECIALS
    ========================================================= */
@@ -209,49 +176,36 @@
 .cardspecialsBox {
   width: 100%;
   height: 100%;
-
   min-width: 0;
   min-height: 0;
 
   background-color: rgba(132, 133, 126, 0.445);
-
-  border-radius: 5cqw;
-
+  border-radius: 2cqw;
   color: #111;
 
   display: flex;
-
+  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
 
-  padding: 1cqw;
-
-  text-align: center;
-
-  margin: 0;
-
+  padding: 2cqw;
   overflow: hidden;
 }
 
 .cardSpecials {
-  font-size: clamp(10cqw, 6cqw, 0.75rem);
-
+  font-size: clamp(0.5rem, 6cqw, 0.75rem);
   font-weight: bold;
-
   line-height: 1.1;
-
+  text-align: center;
   pointer-events: none;
-
-  max-width: 100%;
-  max-height: 100%;
-
-  /*
-   * Don't allow the rules text itself to determine the
-   * size of the specials region.
-   */
   overflow: hidden;
-}
+  flex: 1 1 auto;
+  width: 100%;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 /* =========================================================
    CARD STATS
@@ -259,51 +213,24 @@
 
 .card-stats {
   width: 100%;
-  height: 100%;
-
-  min-width: 0;
-  min-height: 0;
-
   display: flex;
-
   justify-content: space-between;
   align-items: center;
-
-  padding: 0 2cqw;
-
-  overflow: hidden;
+  gap: 2cqw;
+  flex: 0 0 auto;
 }
 
 .cardHP,
 .cardAtk {
-  font-size: clamp(10cqw, 10cqw, 0.75rem);
-
+  font-size: clamp(0.5rem, 8cqw, 0.75rem);
   font-weight: bold;
-
   pointer-events: none;
-
   padding: 1cqw 2cqw;
-
-  min-width: 20%;
-
-  max-width: 40%;
-
-  height: 70%;
-
-  border-radius: 6cqw;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  background-color: rgba(132, 133, 126, 0.445);
-
+  border-radius: 2cqw;
+  background-color: rgba(0, 0, 0, 0.2);
+  color: #fff;
   white-space: nowrap;
-
-  overflow: hidden;
 }
-
 
 /* =========================================================
    SELECTED CARD
