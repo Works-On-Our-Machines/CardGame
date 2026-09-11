@@ -122,7 +122,8 @@ export async function executeCpuTurn() {
     );
     if (accepted) {
       console.log("Player accepted CPU surrender!");
-      // TODO: Trigger match victory handler
+      gameState.cpu.hp = 0;
+      checkVictoryConditions();
       return;
     }
   }

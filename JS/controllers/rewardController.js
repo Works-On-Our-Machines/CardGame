@@ -1,6 +1,6 @@
 import { cardDatabase } from "../data/cardsdatabase.js";
 import { runState } from "../state/runState.js";
-import { createCardElement } from "../ui/cardRender.js";
+import { createCard } from "../cardCreator.js";
 
 let pendingGold = 0;
 let goldCollected = false;
@@ -156,7 +156,8 @@ export function showVictoryOverlay(
     const wrapper = document.createElement("div");
     wrapper.classList.add("reward-card-wrapper");
 
-    const cardNode = createCardElement(cardData);
+    // Uses your existing card builder
+    const cardNode = createCard(cardData);
     wrapper.appendChild(cardNode);
 
     wrapper.addEventListener("click", () => {

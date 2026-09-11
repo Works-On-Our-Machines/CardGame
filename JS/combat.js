@@ -155,7 +155,8 @@ async function resolveSingleHit(
 
   // A) TARGET IS FACE
   if (target.type === "face") {
-    defenderFace.hp = Math.max(0, defenderFace.hp - attacker.atk);
+    defenderFace.hp -= attacker.atk;
+
     console.log(`${attacker.name} dealt ${attacker.atk} damage to Face!`);
     renderStatsUI();
     updateBoardSlotsUI();
