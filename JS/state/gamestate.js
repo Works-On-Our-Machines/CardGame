@@ -1,6 +1,7 @@
 export const gameState = {
   selectedCardIndex: null,
   turnPhase: "PLAY",
+  isCombatOver: false,
 
   player: {
     hp: 10,
@@ -33,6 +34,7 @@ export const gameState = {
   resetBoard() {
     this.selectedCardIndex = null;
     this.turnPhase = "DRAW"; // Reset phase
+    this.isCombatOver = false;
 
     this.player.hp = 10;
     this.player.energy = 1;

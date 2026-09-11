@@ -251,11 +251,15 @@ export function checkVictoryConditions() {
   // Prevent multiple triggers if combat is already resolving
   if (gameState.isCombatOver) return;
 
-  if (gameState.cpu.hp <= 0) {
+  // Reference gameState.enemy (matching resolveSingleHit)
+  const enemyHp = gameState.enemy?.hp;
+  const playerHp = gameState.player?.hp;
+
+  if (enemyHp !== undefined && enemyHp <= 0) {
     gameState.isCombatOver = true;
 
     // Calculate overkill damage for bonus rewards
-    const overkillDamage = Math.abs(gameState.cpu.hp);
+    const overkillDamage = Math.abs(enemyHp);
 
     console.log(`Enemy defeated! Overkill: ${overkillDamage}`);
 
@@ -269,7 +273,7 @@ export function checkVictoryConditions() {
         overkillDamage,
       );
     }, 600);
-  } else if (gameState.player.hp <= 0) {
+  } else if (playerHp !== undefined && playerHp <= 0) {
     gameState.isCombatOver = true;
     disableCombatInputs();
 

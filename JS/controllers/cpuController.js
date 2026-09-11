@@ -122,7 +122,7 @@ export async function executeCpuTurn() {
     );
     if (accepted) {
       console.log("Player accepted CPU surrender!");
-      gameState.cpu.hp = 0;
+      if (gameState.enemy) gameState.enemy.hp = 0; // Use gameState.enemy instead of gameState.cpu
       checkVictoryConditions();
       return;
     }
