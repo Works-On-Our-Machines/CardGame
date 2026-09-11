@@ -4,19 +4,26 @@ import { gameState } from "../state/gameState.js";
 import { handleEndTurn } from "./gameLoopController.js";
 import { loadEncounter } from "./cpuController.js";
 import { cardDatabase } from "../data/cardsdatabase.js";
+import { runState } from "../state/runState.js";
 
 export function setupBoard() {
   gameState.resetBoard();
-  playerDeck.initStartingDeck(); //This needs to be done differently later on gamestart rather than setupboard
+
+  // If masterDeck hasn't been initialized yet (e.g., testing combat directly), init run
+  if (runState.masterDeck.length === 0) {
+    runState.initNewRun();
+  }
 
   setEndTurnButtonState(false);
   //Create the deck draw pile
-  gameState.drawPile = [...playerDeck.cards];
+
+  gameState.drawPile = runState.masterDeck.map((card) => ({ ...card }));
   shuffleDeck(gameState.drawPile);
 
   //Here we create the free card draw pile. Note that we are setting the quantity of squirrels in the deck here with the 10.
   const freeCardTemplate = cardDatabase.find((c) => c.id === "card_000");
-  for (let i = 0; i < 10; i++) {
+  gameState.freePile = [];
+  for (let i = 0; i < runState.freeDeckCount; i++) {
     gameState.freePile.push({ ...freeCardTemplate });
   }
 
@@ -50,7 +57,7 @@ export function setupBoard() {
   drawCard(true, "free");
 
   gameState.turnPhase = "DRAW";
-  
+
   renderStatsUI();
   updateDeckUI();
   startPlayerTurn();

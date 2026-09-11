@@ -20,7 +20,6 @@ body,
   overflow: hidden;
 }
 
-
 /* =========================================================
    MAIN CONTAINER
    ========================================================= */
@@ -33,7 +32,6 @@ body,
 
   overflow: hidden;
 }
-
 
 /* =========================================================
    LEFT / RIGHT SIDES
@@ -62,7 +60,6 @@ body,
 
   overflow: hidden;
 }
-
 
 /* =========================================================
    ACTIONS
@@ -105,7 +102,6 @@ body,
   transform: scale(0.97);
 }
 
-
 /* =========================================================
    PLAYER DECK
    ========================================================= */
@@ -131,7 +127,6 @@ body,
 
   overflow: hidden;
 }
-
 
 /* =========================================================
    HP / ENERGY
@@ -173,7 +168,6 @@ body,
   border-radius: 4px;
 }
 
-
 /* =========================================================
    BOARD
    ========================================================= */
@@ -209,7 +203,6 @@ body,
   overflow: hidden;
 }
 
-
 /* =========================================================
    LANES CONTAINER
    ========================================================= */
@@ -239,14 +232,12 @@ body,
    * Empty lanes and occupied lanes are therefore identical
    * in size.
    */
-  grid-template-rows:
-    repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
 
   gap: 1rem;
 
   overflow: hidden;
 }
-
 
 /* =========================================================
    INDIVIDUAL LANES
@@ -277,8 +268,7 @@ body,
    */
   display: grid;
 
-  grid-template-columns:
-    repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 
   align-items: center;
   justify-items: center;
@@ -287,7 +277,6 @@ body,
 
   overflow: hidden;
 }
-
 
 /* =========================================================
    CARD SLOTS
@@ -328,13 +317,11 @@ body,
   margin: 5px;
 
   transition: border-color 0.2s ease;
-
 }
 
 .card-slot:hover {
   border-color: rgba(255, 255, 255, 0.3);
 }
-
 
 /* =========================================================
    PLAYER HAND
@@ -365,7 +352,6 @@ body,
   overflow-y: hidden;
 }
 
-
 /* =========================================================
    DECKS LAYOUT CONTAINER
    ========================================================= */
@@ -376,12 +362,13 @@ body,
   display: flex;
   flex-direction: column;
 
+  padding: 10px;
+
   gap: 16px;
 
   align-items: center;
   justify-content: center;
 }
-
 
 /* =========================================================
    SHARED DECK CARD BASE
@@ -416,7 +403,6 @@ body,
     box-shadow 0.15s ease,
     border-color 0.15s ease;
 }
-
 
 /* =========================================================
    MAIN DECK

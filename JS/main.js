@@ -1,4 +1,5 @@
 import { setupBoard } from "./controllers/boardController.js";
+import { gameState } from "./state/gameState.js";
 
 async function loadBoardView() {
   const appContainer = document.getElementById("app");

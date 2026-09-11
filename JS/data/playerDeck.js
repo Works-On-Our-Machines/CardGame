@@ -27,3 +27,8 @@ export const playerDeck = {
     this.cards.push({ ...template });
   },
 };
+
+export function getStarterDeckCards() {
+  playerDeck.initStartingDeck();
+  return playerDeck.cards;
+}
