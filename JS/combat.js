@@ -1,6 +1,7 @@
 import { gameState } from "./state/gameState.js";
 import { renderStatsUI } from "./controllers/boardController.js";
 import { createCard } from "./cardCreator.js";
+import { showVictoryOverlay } from "./controllers/rewardController.js";
 
 // Helper to pause execution for visual pacing
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -243,4 +244,49 @@ function highlightSlot(laneAttr, index, enable) {
   } else {
     slotEl.style.boxShadow = "";
   }
+}
+
+export function checkVictoryConditions() {
+  // Prevent multiple triggers if combat is already resolving
+  if (gameState.isCombatOver) return;
+
+  if (gameState.cpu.hp <= 0) {
+    gameState.isCombatOver = true;
+
+    // Calculate overkill damage for bonus rewards
+    const overkillDamage = Math.abs(gameState.cpu.hp);
+
+    console.log(`Enemy defeated! Overkill: ${overkillDamage}`);
+
+    // Disable board interactions
+    disableCombatInputs();
+
+    // Trigger the Victory Overlay after a slight delay for attack animations to finish
+    setTimeout(() => {
+      showVictoryOverlay(
+        gameState.currentEncounterType || "regular",
+        overkillDamage,
+      );
+    }, 600);
+  } else if (gameState.player.hp <= 0) {
+    gameState.isCombatOver = true;
+    disableCombatInputs();
+
+    // Handle player defeat (e.g., game over overlay)
+    setTimeout(() => {
+      handleGameOver();
+    }, 600);
+  }
+}
+
+/**
+ * Disables hand/board clicks so the player can't interact with the game behind the modal.
+ */
+function disableCombatInputs() {
+  const endTurnBtn = document.getElementById("end-turn-btn");
+  if (endTurnBtn) endTurnBtn.disabled = true;
+
+  // Optional: Add a pointer-events blocker class to board container
+  const boardEl = document.getElementById("board-container");
+  if (boardEl) boardEl.style.pointerEvents = "none";
 }

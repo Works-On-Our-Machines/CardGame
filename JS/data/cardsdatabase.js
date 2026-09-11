@@ -7,6 +7,8 @@ export const cardDatabase = [
     specialRule: "None",
     atk: 0,
     hp: 1,
+    type: "basic",
+    suite: "gray",
   },
   {
     id: "card_001",
@@ -16,6 +18,8 @@ export const cardDatabase = [
     specialRule: "None",
     atk: 1,
     hp: 2,
+    type: "common",
+    suite: "red",
   },
   {
     id: "card_002",
@@ -25,6 +29,8 @@ export const cardDatabase = [
     specialRule: "None",
     atk: 2,
     hp: 3,
+    type: "common",
+    suite: "red",
   },
   {
     id: "card_003",
@@ -34,6 +40,8 @@ export const cardDatabase = [
     specialRule: "None",
     atk: 0,
     hp: 5,
+    type: "common",
+    suite: "red",
   },
   {
     id: "card_004",
@@ -43,5 +51,7 @@ export const cardDatabase = [
     specialRule: "None",
     atk: 3,
     hp: 1,
+    type: "common",
+    suite: "red",
   },
 ];

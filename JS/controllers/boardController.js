@@ -7,33 +7,34 @@ import { cardDatabase } from "../data/cardsdatabase.js";
 import { runState } from "../state/runState.js";
 
 export function setupBoard() {
+  // 1. Reset combat-ephemeral state (board slots, hand, energy)
   gameState.resetBoard();
 
-  // If masterDeck hasn't been initialized yet (e.g., testing combat directly), init run
+  // 2. Initialize persistent run if starting fresh or direct-testing combat
   if (runState.masterDeck.length === 0) {
     runState.initNewRun();
   }
 
   setEndTurnButtonState(false);
-  //Create the deck draw pile
 
+  // 3. Clone persistent master deck into combat draw pile & shuffle
   gameState.drawPile = runState.masterDeck.map((card) => ({ ...card }));
   shuffleDeck(gameState.drawPile);
 
-  //Here we create the free card draw pile. Note that we are setting the quantity of squirrels in the deck here with the 10.
+  // 4. Create free card draw pile (e.g., Squirrels/Sacrifices) using runState count
   const freeCardTemplate = cardDatabase.find((c) => c.id === "card_000");
   gameState.freePile = [];
   for (let i = 0; i < runState.freeDeckCount; i++) {
     gameState.freePile.push({ ...freeCardTemplate });
   }
 
-  // Event Listeners
+  // 5. DOM Event Listeners (Deck & Hand clicks)
   document
     .getElementById("deck-pile")
     ?.addEventListener("click", () => drawCard(false, "main"));
   document
     .getElementById("free-deck-pile")
-    ?.addEventListener("click", () => drawCard(false, "free")); // ◄ NEW listener
+    ?.addEventListener("click", () => drawCard(false, "free"));
   document
     .getElementById("player-hand")
     ?.addEventListener("click", handleHandClick);
@@ -45,23 +46,23 @@ export function setupBoard() {
       handleEndTurn(); // Hand control over to gameLoopController
     });
   }
+
+  // 6. Load encounter data & interactive slots
   loadEncounter("0001");
   setupSlotListeners();
 
-  // Draw starting hand
+  // 7. Starting Hand Phase (Draw initial main cards + 1 free card)
   for (let i = 0; i < gameState.player.initialCardDraw; i++) {
     drawCard(true, "main");
   }
-
-  //Draw the free card
   drawCard(true, "free");
 
+  // 8. Start Turn & Refresh UI
   gameState.turnPhase = "DRAW";
-
   renderStatsUI();
   updateDeckUI();
   startPlayerTurn();
-  gameState.player.energy = gameState.player.startingEnergy; // Ensure they have starting energy
+  gameState.player.energy = gameState.player.startingEnergy;
 }
 
 function handleHandClick(event) {

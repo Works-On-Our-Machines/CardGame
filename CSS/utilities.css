@@ -81,3 +81,91 @@ body {
 .gap-1 {
   gap: 1em;
 }
+
+/* =========================================================
+   REWARDS OVERLAY
+   ========================================================= */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: opacity 0.3s ease;
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+.reward-modal {
+  background-color: #1a1a24;
+  border: 2px solid #3b3b54;
+  border-radius: 12px;
+  padding: 24px;
+  width: 90%;
+  max-width: 720px;
+  text-align: center;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+  color: #ffffff;
+}
+
+.reward-title {
+  font-size: 2rem;
+  color: #ffd700;
+  margin-bottom: 16px;
+  letter-spacing: 2px;
+}
+
+.payout-container {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.reward-item {
+  background: #2a2a38;
+  border: 1px solid #4a4a62;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.reward-item:hover {
+  transform: translateY(-2px);
+  border-color: #ffd700;
+}
+
+.card-rewards-grid {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 20px 0;
+  min-height: 200px;
+}
+
+.reward-card-wrapper {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.reward-card-wrapper:hover {
+  transform: translateY(-8px) scale(1.05);
+}
+
+.reward-actions {
+  margin-top: 20px;
+}
