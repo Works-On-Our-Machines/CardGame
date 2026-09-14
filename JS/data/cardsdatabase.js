@@ -54,4 +54,15 @@ export const cardDatabase = [
     type: "common",
     suite: "red",
   },
+  {
+    id: "card_005",
+    name: "The Energy Card",
+    cost: 0,
+    portrait: "../Assets/CardPortraits/PlaceholderPortrait.png",
+    specialRule: "Sacrificial",
+    atk: 0,
+    hp: 2,
+    type: "common",
+    suite: "red",
+  },
 ];

@@ -77,6 +77,19 @@
 }
 
 /* =========================================================
+   REWARDS SCREEN - MUST REFACTOR LATER
+   ========================================================= */
+
+.reward-card-wrapper .card,
+.card-rewards-grid .card {
+  height: 240px;
+  width: auto;
+  aspect-ratio: 5 / 8;
+  min-width: unset;
+  min-height: unset;
+}
+
+/* =========================================================
    CARD HEADER
    ========================================================= */
 
@@ -242,18 +255,4 @@
   transform: translateY(-10px);
 
   transition: transform 0.15s ease;
-}
-
-/* =========================================================
-   REWARDS SCREEN - MUST REFACTOR LATER
-   ========================================================= */
-
-
-.reward-card-wrapper .card,
-.card-rewards-grid .card {
-  height: 240px;
-  width: auto;
-  aspect-ratio: 5 / 8;
-  min-width: unset;
-  min-height: unset;
 }
