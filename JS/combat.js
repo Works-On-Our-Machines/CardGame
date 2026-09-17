@@ -1,7 +1,9 @@
+
 import { gameState } from "./state/gameState.js";
 import { renderStatsUI } from "./controllers/boardController.js";
 import { createCard } from "./cardCreator.js";
-import { showVictoryOverlay } from "./controllers/rewardController.js";
+import { showRewardScreen } from "./controllers/rewardController.js";
+import { showMapView } from "./main.js";
 
 // Helper to pause execution for visual pacing
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -29,13 +31,16 @@ export async function executeSideCombat(attackerSide) {
     // Skip empty slots or cards with 0 ATK
     if (!attackerCard || attackerCard.atk <= 0) continue;
 
-    // Highlight active attacking slot visually (optional polish)
+    // Highlight active attacking slot visually
     highlightSlot(isPlayer ? "PlayerFront" : "enemyFront", slotIndex, true);
 
     // Execute attack(s) for this specific card
     await executeCardAttack(attackerCard, slotIndex, attackerSide);
 
     highlightSlot(isPlayer ? "PlayerFront" : "enemyFront", slotIndex, false);
+
+    // Stop phase if combat ended mid-lane
+    if (gameState.isCombatOver) break;
   }
 }
 
@@ -47,19 +52,17 @@ async function executeCardAttack(attacker, slotIndex, attackerSide) {
 
   // Define opponent target parameters
   const defenderFrontKey = isPlayer ? "enemyFront" : "playerFront";
-  const defenderBackKey = isPlayer ? "enemyBack" : null; // Player currently has 1 row
+  const defenderBackKey = isPlayer ? "enemyBack" : null;
   const defenderFace = isPlayer ? gameState.enemy : gameState.player;
 
   // 1. Determine Target Slots (Default: straight ahead)
   let targetSlots = [slotIndex];
 
   if (hasSpecial(attacker, "bifurcated")) {
-    // Mantis style: diagonal left and diagonal right
     targetSlots = [slotIndex - 1, slotIndex + 1].filter(
       (idx) => idx >= 0 && idx < 4,
     );
   } else if (hasSpecial(attacker, "trifurcated")) {
-    // Mantis God style: diagonal left, straight, diagonal right
     targetSlots = [slotIndex - 1, slotIndex, slotIndex + 1].filter(
       (idx) => idx >= 0 && idx < 4,
     );
@@ -71,6 +74,8 @@ async function executeCardAttack(attacker, slotIndex, attackerSide) {
   // 3. Execute Attacks
   for (let hit = 0; hit < hitCount; hit++) {
     for (const targetIdx of targetSlots) {
+      if (gameState.isCombatOver) return;
+
       await resolveSingleHit(
         attacker,
         targetIdx,
@@ -78,11 +83,11 @@ async function executeCardAttack(attacker, slotIndex, attackerSide) {
         defenderBackKey,
         defenderFace,
       );
-      await delay(250); // Pause between individual strikes
+      await delay(250);
     }
   }
 
-  await delay(350); // Pause before moving to the next attacking card slot
+  await delay(350);
 }
 
 /**
@@ -99,7 +104,7 @@ function resolveTargetForSlot(
     ? gameState.board[defenderBackKey]?.[targetSlotIdx]
     : null;
 
-  // FLYING LOGIC: Bypasses ground cards unless blocked by Mighty Leap
+  // FLYING LOGIC
   if (hasSpecial(attacker, "flying")) {
     if (hasSpecial(frontCard, "mighty_leap")) {
       return {
@@ -120,8 +125,7 @@ function resolveTargetForSlot(
     return { type: "face" };
   }
 
-  // GROUND / STANDARD LOGIC
-  // If a frontline card is present, it shields the face (and takes the hit).
+  // GROUND LOGIC
   if (frontCard) {
     return {
       type: "card",
@@ -131,7 +135,6 @@ function resolveTargetForSlot(
     };
   }
 
-  // Frontline is empty -> Line of sight is open! Hit Face directly.
   return { type: "face" };
 }
 
@@ -145,7 +148,6 @@ async function resolveSingleHit(
   defenderBackKey,
   defenderFace,
 ) {
-  // Re-evaluate target on EVERY hit (for multi-strike)
   const target = resolveTargetForSlot(
     attacker,
     targetSlotIdx,
@@ -160,6 +162,7 @@ async function resolveSingleHit(
     console.log(`${attacker.name} dealt ${attacker.atk} damage to Face!`);
     renderStatsUI();
     updateBoardSlotsUI();
+    checkVictoryConditions();
     return;
   }
 
@@ -175,10 +178,9 @@ async function resolveSingleHit(
     const excessDamage = Math.abs(targetCard.hp);
     console.log(`${targetCard.name} was destroyed!`);
 
-    // Remove dead card from state
     gameState.board[target.laneKey][target.index] = null;
 
-    // OVERFLOW LOGIC: Only overflows to backline if hitting front card and backline exists
+    // OVERFLOW LOGIC
     if (target.laneKey === defenderFrontKey && defenderBackKey) {
       const backCard = gameState.board[defenderBackKey]?.[target.index];
 
@@ -196,7 +198,8 @@ async function resolveSingleHit(
     }
   }
 
-  updateBoardSlotsUI(); // Refreshes HTML slots to reflect HP changes and card deaths
+  updateBoardSlotsUI();
+  checkVictoryConditions();
 }
 
 /**
@@ -219,7 +222,7 @@ export function updateBoardSlotsUI() {
       );
       if (!slotEl) return;
 
-      slotEl.innerHTML = ""; // Clear current contents
+      slotEl.innerHTML = "";
 
       if (cardData) {
         const cardEl = createCard(cardData);
@@ -231,67 +234,61 @@ export function updateBoardSlotsUI() {
   });
 }
 
-/**
- * Optional visual feedback helper
- */
 function highlightSlot(laneAttr, index, enable) {
   const slotEl = document.querySelector(
     `.card-slot[data-lane="${laneAttr}"][data-index="${index}"]`,
   );
   if (!slotEl) return;
 
-  if (enable) {
-    slotEl.style.boxShadow = "0 0 12px 3px #f39c12";
-  } else {
-    slotEl.style.boxShadow = "";
-  }
+  slotEl.style.boxShadow = enable ? "0 0 12px 3px #f39c12" : "";
 }
 
 export function checkVictoryConditions() {
-  // Prevent multiple triggers if combat is already resolving
   if (gameState.isCombatOver) return;
 
-  // Reference gameState.enemy (matching resolveSingleHit)
   const enemyHp = gameState.enemy?.hp;
   const playerHp = gameState.player?.hp;
 
   if (enemyHp !== undefined && enemyHp <= 0) {
     gameState.isCombatOver = true;
 
-    // Calculate overkill damage for bonus rewards
     const overkillDamage = Math.abs(enemyHp);
+    const baseGold = gameState.currentEncounterType === "elite" ? 50 : 25;
+    const totalGold = baseGold + overkillDamage;
 
-    console.log(`Enemy defeated! Overkill: ${overkillDamage}`);
+    console.log(
+      `Enemy defeated! Overkill: ${overkillDamage}. Gold awarded: ${totalGold}`,
+    );
 
-    // Disable board interactions
     disableCombatInputs();
 
-    // Trigger the Victory Overlay after a slight delay for attack animations to finish
     setTimeout(() => {
-      showVictoryOverlay(
-        gameState.currentEncounterType || "regular",
-        overkillDamage,
-      );
+      showRewardScreen({
+        gold: totalGold,
+        choices: 3,
+        rarity: gameState.currentEncounterType === "elite" ? "rare" : "any",
+      });
     }, 600);
   } else if (playerHp !== undefined && playerHp <= 0) {
     gameState.isCombatOver = true;
     disableCombatInputs();
 
-    // Handle player defeat (e.g., game over overlay)
     setTimeout(() => {
       handleGameOver();
     }, 600);
   }
 }
 
-/**
- * Disables hand/board clicks so the player can't interact with the game behind the modal.
- */
+function handleGameOver() {
+  console.log("Game Over! Returning to start area...");
+  alert("Game Over! Your run has ended.");
+  showMapView();
+}
+
 function disableCombatInputs() {
   const endTurnBtn = document.getElementById("end-turn-btn");
   if (endTurnBtn) endTurnBtn.disabled = true;
 
-  // Optional: Add a pointer-events blocker class to board container
   const boardEl = document.getElementById("board-container");
   if (boardEl) boardEl.style.pointerEvents = "none";
 }

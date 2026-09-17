@@ -1,199 +1,147 @@
-import { cardDatabase } from "../data/cardsdatabase.js";
+// JS/controllers/rewardController.js
 import { runState } from "../state/runState.js";
+import { cardDatabase } from "../data/cardsdatabase.js";
 import { createCard } from "../cardCreator.js";
 import { showMapView } from "../main.js";
 
-let pendingGold = 0;
-let goldCollected = false;
+/**
+ * Displays the reward modal for combat victories and event rewards.
+ * @param {Object} config - { gold?: number, choices?: number, rarity?: string, onComplete?: Function }
+ * @param {Function} [fallbackCallback] - Fallback callback if not specified in config
+ */
+export function showRewardScreen(config = {}, fallbackCallback = null) {
+  // 1. Normalize parameters safely across all caller types (combat or event)
+  const gold = typeof config === "number" ? config : config.gold || 0;
+  const choicesCount = config.choices || 3;
+  const rarity = config.rarity || "any";
+  const onComplete =
+    (typeof config === "function" ? config : config.onComplete) ||
+    fallbackCallback ||
+    showMapView;
 
-// 1. Rarity Roll Logic
-function rollRarity(encounterType) {
-  const roll = Math.random() * 100;
-
-  if (encounterType === "boss") return "rare";
-
-  if (encounterType === "elite") {
-    if (roll < 20) return "common";
-    if (roll < 80) return "uncommon";
-    return "rare";
+  // 2. Process Gold Reward immediately
+  if (gold > 0) {
+    runState.currency = (runState.currency || 0) + gold;
   }
 
-  // Regular Battle
-  if (roll < 70) return "common";
-  if (roll < 95) return "uncommon";
-  return "rare";
-}
+  // 3. Remove any lingering reward overlays to prevent duplicates
+  const existingOverlay = document.getElementById("reward-overlay");
+  if (existingOverlay) existingOverlay.remove();
 
-// 2. Card Reward Choice Generator
-export function generateCardRewards(
-  encounterType = "regular",
-  playerSuite = "red",
-  count = 3,
-) {
-  const selectedRewards = [];
-
-  for (let i = 0; i < count; i++) {
-    const targetRarity = rollRarity(encounterType);
-
-    let pool = cardDatabase.filter((card) => {
-      const cardType = card.type?.toLowerCase();
-      const cardSuite = card.suite?.toLowerCase();
-
-      const matchesRarity = cardType === targetRarity;
-      const isCollectible = cardType !== "basic";
-      const matchesSuite =
-        cardSuite === playerSuite.toLowerCase() || cardSuite === "gray";
-
-      return matchesRarity && isCollectible && matchesSuite;
-    });
-
-    if (pool.length === 0) {
-      pool = cardDatabase.filter(
-        (c) =>
-          c.type?.toLowerCase() !== "basic" &&
-          (c.suite?.toLowerCase() === playerSuite.toLowerCase() ||
-            c.suite?.toLowerCase() === "gray"),
-      );
-    }
-
-    const uniquePool = pool.filter(
-      (card) => !selectedRewards.some((r) => r.id === card.id),
-    );
-    const finalPool = uniquePool.length > 0 ? uniquePool : pool;
-
-    const chosenCard = finalPool[Math.floor(Math.random() * finalPool.length)];
-    if (chosenCard) {
-      selectedRewards.push({ ...chosenCard });
-    }
-  }
-
-  return selectedRewards;
-}
-
-// 3. Gold Calculation
-export function calculateGoldReward(
-  encounterType = "regular",
-  overkillDamage = 0,
-) {
-  let baseGold = 15;
-  if (encounterType === "elite") baseGold = 35;
-  if (encounterType === "boss") baseGold = 75;
-
-  const variance = Math.floor(Math.random() * 6) - 3;
-  const overkillBonus = Math.max(0, Math.floor(overkillDamage * 1.5));
-
-  return Math.max(5, baseGold + variance + overkillBonus);
-}
-
-// 4. Dynamic HTML Overlay Generator
-function getOrCreateRewardOverlay() {
-  let overlay = document.getElementById("reward-overlay");
-  if (overlay) return overlay;
-
-  overlay = document.createElement("div");
+  // 4. Create Modal DOM Container using utilities.css classes
+  const overlay = document.createElement("div");
+  overlay.className = "overlay";
   overlay.id = "reward-overlay";
-  overlay.className = "overlay hidden";
 
-  overlay.innerHTML = `
-    <div class="reward-modal">
-      <h2 class="reward-title">VICTORY</h2>
-      
-      <div class="payout-container">
-        <div id="gold-reward" class="reward-item">
-          <span class="reward-icon">🪙</span>
-          <span id="gold-amount">+0 Gold</span>
-        </div>
-        <div id="extra-rewards" class="extra-rewards-list"></div>
-      </div>
+  const modal = document.createElement("div");
+  // Applying layout helper classes from utilities.css alongside the main modal class
+  modal.className = "reward-modal column align-center";
 
-      <p class="reward-subtitle">Choose a card to add to your deck:</p>
+  // Title
+  const title = document.createElement("h2");
+  title.className = "reward-title";
+  title.textContent = "Rewards";
+  modal.appendChild(title);
 
-      <div id="card-rewards-container" class="card-rewards-grid"></div>
+  // Gold Payout Display (if applicable)
+  if (gold > 0) {
+    const payoutContainer = document.createElement("div");
+    payoutContainer.className = "payout-container";
 
-      <div class="reward-actions">
-        <button id="skip-reward-btn" class="btn-secondary">Skip Card Reward</button>
-      </div>
-    </div>
-  `;
+    const goldItem = document.createElement("div");
+    goldItem.className = "reward-item";
+    goldItem.textContent = `+${gold} Gold`;
+    payoutContainer.appendChild(goldItem);
 
-  document.body.appendChild(overlay);
-  return overlay;
-}
+    modal.appendChild(payoutContainer);
+  }
 
-// 5. Victory Overlay Display Controller
-export function showVictoryOverlay(
-  encounterType = "regular",
-  overkillDamage = 0,
-) {
-  const overlay = getOrCreateRewardOverlay();
+  // 5. Populate Card Choices
+  const cardsGrid = document.createElement("div");
+  cardsGrid.className = "card-rewards-grid";
 
-  const goldEl = document.getElementById("gold-amount");
-  const cardsContainer = document.getElementById("card-rewards-container");
-  const skipBtn = document.getElementById("skip-reward-btn");
-  const goldRewardBox = document.getElementById("gold-reward");
-
-  pendingGold = calculateGoldReward(encounterType, overkillDamage);
-  goldCollected = false;
-  goldEl.textContent = `+${pendingGold} Gold`;
-  goldRewardBox.style.opacity = "1";
-
-  goldRewardBox.onclick = () => {
-    if (!goldCollected) {
-      runState.currency += pendingGold;
-      goldCollected = true;
-      goldRewardBox.style.opacity = "0.4";
-      goldEl.textContent = "Collected!";
-    }
-  };
-
-  cardsContainer.innerHTML = "";
-  const cardChoices = generateCardRewards(
-    encounterType,
-    runState.playerSuite || "red",
-    3,
-  );
+  const cardPool = getFilteredCardPool(rarity);
+  const cardChoices = getRandomCards(cardPool, choicesCount);
 
   cardChoices.forEach((cardData) => {
-    const wrapper = document.createElement("div");
-    wrapper.classList.add("reward-card-wrapper");
+    const cardWrapper = document.createElement("div");
+    cardWrapper.className = "reward-card-wrapper";
 
-    // Uses your existing card builder
-    const cardNode = createCard(cardData);
-    wrapper.appendChild(cardNode);
+    // Rely on your existing cardCreator logic
+    const cardEl = createCard(cardData);
+    cardWrapper.appendChild(cardEl);
 
-    wrapper.addEventListener("click", () => {
-      claimCardAndFinish(cardData);
+    // Event listener for picking the card
+    cardWrapper.addEventListener("click", () => {
+      // Ensure we push to the correct deck array in runState
+      if (Array.isArray(runState.masterDeck)) {
+        runState.masterDeck.push({ ...cardData });
+        console.log(`[Reward] Added ${cardData.name} to Master Deck.`);
+      } else if (Array.isArray(runState.deck)) {
+        runState.deck.push({ ...cardData });
+        console.log(`[Reward] Added ${cardData.name} to Deck.`);
+      }
+      cleanupAndProceed();
     });
 
-    cardsContainer.appendChild(wrapper);
+    cardsGrid.appendChild(cardWrapper);
   });
 
-  skipBtn.onclick = () => {
-    claimCardAndFinish(null);
-  };
+  modal.appendChild(cardsGrid);
 
-  overlay.classList.remove("hidden");
+  // 6. Setup Actions (Skip Button)
+  const actionsContainer = document.createElement("div");
+  actionsContainer.className = "reward-actions";
+
+  const skipBtn = document.createElement("button");
+  // Reusing the styled reward-item class for the button to match your aesthetic
+  skipBtn.className = "reward-item";
+  skipBtn.textContent = "Skip Rewards";
+  skipBtn.addEventListener("click", () => {
+    cleanupAndProceed();
+  });
+
+  actionsContainer.appendChild(skipBtn);
+  modal.appendChild(actionsContainer);
+
+  // 7. Mount to DOM
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  // 8. Cleanup helper
+  function cleanupAndProceed() {
+    overlay.remove();
+    if (typeof onComplete === "function") {
+      onComplete(); // Routes back to Event stage or Map
+    }
+  }
 }
 
-// 6. Claim & Exit Resolution
-function claimCardAndFinish(chosenCard) {
-  if (!goldCollected) {
-    // This needs to be changed - Gold should be skippable, but
-    // the gold must be added for now until a back feature is
-    // added so they can open the window again in case of accidents.
-    runState.currency += pendingGold;
+/**
+ * Filters the global card database by rarity pool
+ */
+function getFilteredCardPool(rarity) {
+  // Safely handle cardDatabase whether it was exported as an array or an object
+  const allCards = Array.isArray(cardDatabase)
+    ? cardDatabase
+    : Object.values(cardDatabase || {});
+  if (allCards.length === 0) return [];
+
+  if (rarity !== "any") {
+    const filteredCards = allCards.filter(
+      (c) => c.rarity === rarity || c.type === rarity,
+    );
+    // Fall back to all cards if the requested rarity pool is empty
+    return filteredCards.length > 0 ? filteredCards : allCards;
   }
+  return allCards;
+}
 
-  if (chosenCard) {
-    runState.masterDeck.push({ ...chosenCard });
-    console.log(`Added ${chosenCard.name} to Master Deck.`);
-  }
-
-  const overlay = document.getElementById("reward-overlay");
-  if (overlay) overlay.classList.add("hidden");
-
-  const boardEl = document.getElementById("board-container");
-  if (boardEl) boardEl.style.pointerEvents = "auto";
-
-  showMapView();
+/**
+ * Returns random non-repeating cards from a given pool
+ */
+function getRandomCards(pool, count) {
+  if (!pool || pool.length === 0) return [];
+  const shuffled = [...pool].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, Math.min(count, pool.length));
 }

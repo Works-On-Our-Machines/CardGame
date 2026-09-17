@@ -4,6 +4,9 @@ import { gameState } from "./state/gameState.js";
 import { generateMap } from "./engine/mapGenerator.js";
 import { createMapView } from "./ui/mapRenderer.js";
 import { runState } from "./state/runState.js";
+import { startEvent } from "./controllers/eventController.js";
+import { act1Events } from "./data/eventsData.js";
+import { startingBoonsEvent } from "./data/eventsData.js";
 
 export async function loadBoardView() {
   const appContainer = document.getElementById("app");
@@ -24,7 +27,7 @@ export async function loadBoardView() {
 export function showMapView() {
   const appContainer = document.getElementById("app") || document.body;
 
-  // 1. Save scroll position of current map container before wiping DOM
+  // Preserve scroll offset across re-renders
   const existingContainer = appContainer.querySelector(".map-view-container");
   const savedScrollTop = existingContainer ? existingContainer.scrollTop : null;
 
@@ -40,32 +43,52 @@ export function showMapView() {
   const mapView = createMapView(runState.mapData, handleNodeClick);
   appContainer.appendChild(mapView);
 
-  // 2. Restore previous scroll position, or focus bottom (Floor 0) on initial load
   if (savedScrollTop !== null) {
     mapView.scrollTop = savedScrollTop;
   } else {
-    // Scroll to bottom because floors stack from bottom (Floor 0) to top (Floor 15)
     mapView.scrollTop = mapView.scrollHeight;
   }
 }
 
 function handleNodeClick(node) {
-  // 1. Advance runState (marks node completed, locks choices, opens children)
+  // Advance run state progression
   const selectedNode = runState.selectNode(node.id);
   if (!selectedNode) return;
 
   console.log(`Visited ${selectedNode.type} node (${selectedNode.id})`);
 
-  // 2. Route view based on node type
-  if (["combat", "elite", "boss"].includes(selectedNode.type)) {
-    loadBoardView();
-  } else {
-    // Re-render map view for non-combat nodes (rest/shop/event) for now
-    showMapView();
+  // View routing based on node type
+  switch (selectedNode.type) {
+    case "startingArea":
+      startEvent(startingBoonsEvent);
+      break;
+
+    case "event": {
+      const randomEvent =
+        act1Events[Math.floor(Math.random() * act1Events.length)];
+      if (randomEvent) {
+        startEvent(randomEvent);
+      } else {
+        console.warn("No events found in act1Events pool.");
+        showMapView();
+      }
+      break;
+    }
+
+    case "combat":
+    case "elite":
+    case "boss":
+      loadBoardView();
+      break;
+
+    default:
+      // Re-render map view for unimplemented node types (e.g. rest, shop)
+      showMapView();
+      break;
   }
 }
 
-// Global window attachment for console testing
+// Global window attachments for browser console testing
 window.showMapView = showMapView;
 window.loadBoardView = loadBoardView;
 window.runState = runState;
