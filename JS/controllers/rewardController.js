@@ -1,6 +1,7 @@
 import { cardDatabase } from "../data/cardsdatabase.js";
 import { runState } from "../state/runState.js";
 import { createCard } from "../cardCreator.js";
+import { showMapView } from "../main.js";
 
 let pendingGold = 0;
 let goldCollected = false;
@@ -177,11 +178,15 @@ export function showVictoryOverlay(
 // 6. Claim & Exit Resolution
 function claimCardAndFinish(chosenCard) {
   if (!goldCollected) {
+    // This needs to be changed - Gold should be skippable, but
+    // the gold must be added for now until a back feature is
+    // added so they can open the window again in case of accidents.
     runState.currency += pendingGold;
   }
 
   if (chosenCard) {
     runState.masterDeck.push({ ...chosenCard });
+    console.log(`Added ${chosenCard.name} to Master Deck.`);
   }
 
   const overlay = document.getElementById("reward-overlay");
@@ -189,4 +194,6 @@ function claimCardAndFinish(chosenCard) {
 
   const boardEl = document.getElementById("board-container");
   if (boardEl) boardEl.style.pointerEvents = "auto";
+
+  showMapView();
 }
