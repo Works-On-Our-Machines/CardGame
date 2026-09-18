@@ -61,6 +61,7 @@ function handleOptionSelect(option) {
       {
         rarity: cardEffect.rarity || "any",
         choices: cardEffect.choices || 3,
+        cardId: cardEffect.cardId || null, // Pass specific ID if present
         onComplete: proceedToNextStage,
       },
       proceedToNextStage,

@@ -120,4 +120,15 @@ export const cardDatabase = [
     type: "uncommon",
     suite: "red",
   },
+  {
+    id: "eventCard_001",
+    name: "Turtle's Shell",
+    cost: 1,
+    portrait: "../Assets/CardPortraits/PlaceholderPortrait.png",
+    specialRule: "Shell",
+    atk: 1,
+    hp: 2,
+    type: "uncommon",
+    suite: "gray",
+  },
 ];

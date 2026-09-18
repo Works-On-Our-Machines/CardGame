@@ -14,6 +14,8 @@ export function showRewardScreen(config = {}, fallbackCallback = null) {
   const gold = typeof config === "number" ? config : config.gold || 0;
   const choicesCount = config.choices || 3;
   const rarity = config.rarity || "any";
+  const cardId = config.cardId || null; // <--- ADD THIS LINE
+
   const onComplete =
     (typeof config === "function" ? config : config.onComplete) ||
     fallbackCallback ||
@@ -60,7 +62,7 @@ export function showRewardScreen(config = {}, fallbackCallback = null) {
   const cardsGrid = document.createElement("div");
   cardsGrid.className = "card-rewards-grid";
 
-  const cardPool = getFilteredCardPool(rarity);
+  const cardPool = getFilteredCardPool(rarity, cardId);
   const cardChoices = getRandomCards(cardPool, choicesCount);
 
   cardChoices.forEach((cardData) => {
@@ -117,23 +119,33 @@ export function showRewardScreen(config = {}, fallbackCallback = null) {
   }
 }
 
-/**
- * Filters the global card database by rarity pool
- */
-function getFilteredCardPool(rarity) {
-  // Safely handle cardDatabase whether it was exported as an array or an object
+function getFilteredCardPool(rarity, cardId = null) {
+  // Normalize pool regardless of array or object export
+  // CHANGED: Replaced 'cardDb' with the correctly imported 'cardDatabase'
   const allCards = Array.isArray(cardDatabase)
     ? cardDatabase
-    : Object.values(cardDatabase || {});
+    : Object.values(cardDatabase);
   if (allCards.length === 0) return [];
 
-  if (rarity !== "any") {
-    const filteredCards = allCards.filter(
+  // 1. Look up specific card ID across array or object structures
+  if (cardId) {
+    const specificCard = allCards.find((c) => c.id === cardId);
+    if (specificCard) {
+      return [specificCard];
+    }
+    console.warn(
+      `[Reward] Specified cardId "${cardId}" not found in cardsDatabase. Falling back to pool.`,
+    );
+  }
+
+  // 2. Fall back to rarity filtering
+  if (rarity && rarity !== "any") {
+    const filtered = allCards.filter(
       (c) => c.rarity === rarity || c.type === rarity,
     );
-    // Fall back to all cards if the requested rarity pool is empty
-    return filteredCards.length > 0 ? filteredCards : allCards;
+    return filtered.length > 0 ? filtered : allCards;
   }
+
   return allCards;
 }
 

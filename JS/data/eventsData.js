@@ -104,7 +104,7 @@ export const act1Events = [
         options: [
           {
             text: "[Open] Open the crate...",
-            effects: [{ type: "cardReward", rarity: "uncommon", choices: 3 }],
+            effects: [],
             nextStage: "opened",
           },
           {
@@ -116,6 +116,7 @@ export const act1Events = [
       },
       opened: {
         text: "The crate contains a manual on certain combat techniques!",
+        effects: [{ type: "cardReward", rarity: "uncommon", choices: 3 }],
         options: [{ text: "[Continue]", effects: [], nextStage: null }],
       },
 
@@ -132,12 +133,39 @@ export const act1Events = [
     initialStage: "start",
     stages: {
       start: {
-        text: "",
+        text: "You come across a turtle chomping on some greens. The turtle seems to ignore you.",
         options: [
           {
-            text: "",
-            effects: "",
-            nextStage: "",
+            text: "[Eat] The leaves look nutritious, try eating some!",
+            effects: [],
+            nextStage: "eat",
+          },
+          {
+            text: "[Strike] The distracted turtle is exposed. Strike now!",
+            effects: [],
+            nextStage: "strike",
+          },
+        ],
+      },
+      eat: {
+        text: "The leaves are indeed some healthy greens. Eating your vegetables had a healing effect on you.",
+        options: [
+          {
+            text: "[Continue]",
+            effects: [{ type: "heal", amount: 3 }],
+            nextStage: null,
+          },
+        ],
+      },
+      strike: {
+        text: "You swing down with your weapon on the turtle, but before your strike lands, it retracts into its shell. Perhaps there is a lesson to be learned here?",
+        options: [
+          {
+            text: "[Continue]",
+            effects: [
+              { type: "cardReward", cardId: "eventCard_001", choices: 1 },
+            ],
+            nextStage: null,
           },
         ],
       },
