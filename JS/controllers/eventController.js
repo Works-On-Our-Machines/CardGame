@@ -7,6 +7,10 @@ import { showRewardScreen } from "./rewardController.js";
 let currentActiveEvent = null;
 
 export function startEvent(eventData, stageKey = null) {
+  if (eventData && eventData.id) {
+    runState.recordVisitedEvent(eventData.id);
+  }
+
   currentActiveEvent = eventData;
   const initialStage = stageKey || eventData.initialStage || "start";
   renderStage(initialStage);

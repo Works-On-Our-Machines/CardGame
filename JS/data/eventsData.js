@@ -39,11 +39,12 @@ export const startingBoonsEvent = {
 
 function rollStartingBoon() {}
 
+let placeholderArt = "../Assets/Events/placeholder.png";
 export const act1Events = [
   {
     id: "A1_001",
     title: "The Mysterious Shrine",
-    art: "../Assets/Events/placeholder.png", // Optional background art
+    art: placeholderArt,
     initialStage: "start",
     stages: {
       // --- Stage 1: Initial Presentation ---
@@ -95,7 +96,7 @@ export const act1Events = [
   {
     id: "A1_002",
     title: "An Unsuspectic Crate",
-    art: "../Assets/Events/placeholder.png", // Optional background art
+    art: placeholderArt,
     initialStage: "start",
     stages: {
       start: {
@@ -121,6 +122,24 @@ export const act1Events = [
       left: {
         text: "You leave the crate. There are many just like it, why would this one be any special?",
         options: [{ text: "[Continue]", effects: [], nextStage: null }],
+      },
+    },
+  },
+  {
+    id: "A1_003",
+    title: "A Chomping Turtle",
+    art: placeholderArt,
+    initialStage: "start",
+    stages: {
+      start: {
+        text: "",
+        options: [
+          {
+            text: "",
+            effects: "",
+            nextStage: "",
+          },
+        ],
       },
     },
   },

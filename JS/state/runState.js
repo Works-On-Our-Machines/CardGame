@@ -1,4 +1,3 @@
-// JS/state/runState.js
 import { getStarterDeckCards } from "../data/playerDeck.js";
 
 export const runState = {
@@ -11,9 +10,21 @@ export const runState = {
   maxHP: 10,
 
   // --- Map & Progression State ---
-  mapData: [], // Stores full 15-floor grid
-  currentNodeId: null, // Active node ID (e.g. "0_0")
-  visitedNodeIds: [], // Sequence of completed node IDs
+  mapData: [],
+  currentNodeId: null,
+  visitedNodeIds: [],
+  visitedEvents: [],
+
+  // --- Backward Compatibility Safeguards ---
+  get deck() {
+    return this.masterDeck;
+  },
+  get gold() {
+    return this.currency;
+  },
+  set gold(val) {
+    this.currency = val;
+  },
 
   initNewRun() {
     this.currency = 50;
@@ -22,6 +33,7 @@ export const runState = {
     this.relics = [];
     this.consumables = [];
     this.masterDeck = getStarterDeckCards().map((card) => ({ ...card }));
+    this.visitedEvents = [];
 
     // Reset Map State
     this.mapData = [];
@@ -29,26 +41,15 @@ export const runState = {
     this.visitedNodeIds = [];
   },
 
-  /**
-   * Stores freshly generated map in state.
-   */
   setMap(generatedMap) {
     this.mapData = generatedMap;
     this.currentNodeId = null;
     this.visitedNodeIds = [];
   },
 
-  /**
-   * Selects an available node, marks it completed, locks unchosen choices,
-   * and sets connected child nodes to available.
-   * @param {string} nodeId - Target node ID
-   * @returns {Object|null} Selected node object
-   */
-  
   selectNode(nodeId) {
     let targetNode = null;
 
-    // 1. Lock out all currently available nodes across the map
     this.mapData.forEach((row) => {
       row.nodes.forEach((node) => {
         if (node.id === nodeId) {
@@ -61,12 +62,10 @@ export const runState = {
 
     if (!targetNode) return null;
 
-    // 2. Mark selected node as completed & update tracking history
     targetNode.status = "completed";
     this.currentNodeId = targetNode.id;
     this.visitedNodeIds.push(targetNode.id);
 
-    // 3. Unlock child nodes connected to selected node
     const childIds = targetNode.connections || [];
     this.mapData.forEach((row) => {
       row.nodes.forEach((node) => {
@@ -79,9 +78,6 @@ export const runState = {
     return targetNode;
   },
 
-  /**
-   * Utility to retrieve active node object.
-   */
   getCurrentNode() {
     if (!this.currentNodeId) return null;
     for (const row of this.mapData) {
@@ -89,5 +85,19 @@ export const runState = {
       if (found) return found;
     }
     return null;
+  },
+
+  recordVisitedEvent(eventId) {
+    if (eventId && !this.visitedEvents.includes(eventId)) {
+      this.visitedEvents.push(eventId);
+    }
+  },
+
+  /**
+   * Safely modifies persistent HP within allowable bounds (0 - maxHP)
+   */
+  modifyHP(amount) {
+    this.currentHP = Math.min(this.maxHP, Math.max(0, this.currentHP + amount));
+    return this.currentHP;
   },
 };
