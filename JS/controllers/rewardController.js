@@ -69,7 +69,7 @@ export function showRewardScreen(config = {}, fallbackCallback = null) {
     const cardWrapper = document.createElement("div");
     cardWrapper.className = "reward-card-wrapper";
 
-    // Rely on your existing cardCreator logic
+    // Rely on  existing cardCreator logic
     const cardEl = createCard(cardData);
     cardWrapper.appendChild(cardEl);
 
