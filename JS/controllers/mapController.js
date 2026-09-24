@@ -3,6 +3,7 @@ import { runState } from "../state/runState.js";
 import { startEvent } from "./eventController.js";
 import { act1Events, startingBoonsEvent } from "../data/eventsData.js";
 import { loadBoardView, showMapView } from "../main.js";
+import { updateTopBar } from "../ui/topBarRenderer.js";
 
 /**
  * Handles node selection on the map, updates run state progression,
@@ -13,6 +14,8 @@ export function handleNodeClick(node) {
   // 1. Advance run state progression
   const selectedNode = runState.selectNode(node.id);
   if (!selectedNode) return;
+
+  updateTopBar();
 
   console.log(`Visited ${selectedNode.type} node (${selectedNode.id})`);
 

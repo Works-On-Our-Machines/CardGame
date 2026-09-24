@@ -109,7 +109,6 @@ function setupSlotListeners() {
 }
 
 function playSelectedCardToSlot(slotIndex, slotElement) {
-  // ◄ NEW: Block playing cards if still in Draw Phase
   if (gameState.turnPhase === "DRAW") {
     console.warn("You must finish drawing cards first!");
     return;

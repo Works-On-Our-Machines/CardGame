@@ -2,12 +2,13 @@ import { getStarterDeckCards } from "../data/playerDeck.js";
 
 export const runState = {
   currency: 0,
-  relics: [],
+  artefacts: [],
   consumables: [],
   masterDeck: [],
   freeDeckCount: 10,
   currentHP: 10,
   maxHP: 10,
+  floor: 0,
 
   // --- Map & Progression State ---
   mapData: [],
@@ -19,18 +20,13 @@ export const runState = {
   get deck() {
     return this.masterDeck;
   },
-  get gold() {
-    return this.currency;
-  },
-  set gold(val) {
-    this.currency = val;
-  },
 
   initNewRun() {
     this.currency = 50;
     this.currentHP = 10;
     this.maxHP = 10;
-    this.relics = [];
+    this.floor = 0;
+    this.artefacts = [];
     this.consumables = [];
     this.masterDeck = getStarterDeckCards().map((card) => ({ ...card }));
     this.visitedEvents = [];

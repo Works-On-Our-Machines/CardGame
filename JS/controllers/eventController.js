@@ -3,6 +3,7 @@ import { runState } from "../state/runState.js";
 import { createEventView } from "../ui/eventRenderer.js";
 import { showMapView, loadBoardView } from "../main.js";
 import { showRewardScreen } from "./rewardController.js";
+import { renderTopBar, updateTopBar } from "../ui/topBarRenderer.js"; // Import renderTopBar & updateTopBar
 
 let currentActiveEvent = null;
 
@@ -20,6 +21,11 @@ function renderStage(stageKey) {
   const appContainer = document.getElementById("app") || document.body;
   appContainer.innerHTML = "";
 
+  // 1. Re-mount the Top Bar first so it stays on screen
+  const topBar = renderTopBar();
+  appContainer.appendChild(topBar);
+
+  // 2. Render and append the Event View below the Top Bar
   const eventView = createEventView(
     currentActiveEvent,
     stageKey,
@@ -32,7 +38,7 @@ function renderStage(stageKey) {
 }
 
 function handleOptionSelect(option) {
-  // 1. Process instant non-modal numerical effects (Gold, HP, Relics)
+  // 1. Process instant non-modal numerical effects (currency, HP, Relics)
   const executionContext = processEffects(option.effects || []);
 
   // 2. Check if this option includes a card reward modal request
@@ -61,7 +67,7 @@ function handleOptionSelect(option) {
       {
         rarity: cardEffect.rarity || "any",
         choices: cardEffect.choices || 3,
-        cardId: cardEffect.cardId || null, // Pass specific ID if present
+        cardId: cardEffect.cardId || null,
         onComplete: proceedToNextStage,
       },
       proceedToNextStage,
@@ -73,14 +79,17 @@ function handleOptionSelect(option) {
 
 function processEffects(effects) {
   const context = { triggeredCombat: false };
+  let statsChanged = false;
 
   effects.forEach((effect) => {
     switch (effect.type) {
+      case "currency":
       case "gold":
         runState.currency = Math.max(
           0,
           runState.currency + (effect.amount || 0),
         );
+        statsChanged = true;
         break;
 
       case "damage":
@@ -88,6 +97,7 @@ function processEffects(effects) {
           0,
           runState.currentHP - (effect.amount || 0),
         );
+        statsChanged = true;
         break;
 
       case "heal":
@@ -95,6 +105,7 @@ function processEffects(effects) {
           runState.maxHP,
           runState.currentHP + (effect.amount || 0),
         );
+        statsChanged = true;
         break;
 
       case "gainRelic":
@@ -103,6 +114,7 @@ function processEffects(effects) {
           name: effect.name || "Artifact",
           pool: effect.pool || "generic",
         });
+        statsChanged = true;
         break;
 
       case "triggerCombat":
@@ -117,6 +129,11 @@ function processEffects(effects) {
         console.warn(`[Event] Unhandled effect type: ${effect.type}`);
     }
   });
+
+  // Re-render Top Bar if currency, HP, or artifacts changed
+  if (statsChanged) {
+    updateTopBar();
+  }
 
   return context;
 }

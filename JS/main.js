@@ -4,6 +4,7 @@ import { generateMap } from "./engine/mapGenerator.js";
 import { createMapView } from "./ui/mapRenderer.js";
 import { runState } from "./state/runState.js";
 import { handleNodeClick } from "./controllers/mapController.js";
+import { renderTopBar, updateTopBar } from "./ui/topBarRenderer.js";
 
 export async function loadBoardView() {
   const appContainer = document.getElementById("app");
@@ -14,6 +15,14 @@ export async function loadBoardView() {
 
     const boardHTML = await response.text();
     appContainer.innerHTML = boardHTML;
+
+    appContainer.appendChild(renderTopBar());
+
+    const viewWrapper = document.createElement("div");
+    viewWrapper.style.flex = "1";
+    viewWrapper.style.overflow = "hidden";
+    viewWrapper.innerHTML = boardHTML;
+    appContainer.appendChild(viewWrapper);
 
     setupBoard();
   } catch (error) {
@@ -30,11 +39,21 @@ export function showMapView() {
 
   appContainer.innerHTML = "";
 
+  appContainer.appendChild(renderTopBar());
+
+  if (!runState.mapData || runState.mapData.length === 0) {
+    runState.initNewRun();
+    const newMap = generateMap();
+    runState.setMap(newMap);
+    updateTopBar();
+  }
+
   // Initialize a new run and generate map if none exists
   if (!runState.mapData || runState.mapData.length === 0) {
     runState.initNewRun();
     const newMap = generateMap();
     runState.setMap(newMap);
+    updateTopBar();
   }
 
   const mapView = createMapView(runState.mapData, handleNodeClick);
