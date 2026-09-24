@@ -95,12 +95,12 @@ export const act1Events = [
   },
   {
     id: "A1_002",
-    title: "An Unsuspectic Crate",
+    title: "An Unsuspecting Crate",
     art: placeholderArt,
     initialStage: "start",
     stages: {
       start: {
-        text: "You find a generic looking box. It carries no markings or other destinctive features.",
+        text: "You find a generic looking box. It carries no markings or other distinct features.",
         options: [
           {
             text: "[Open] Open the crate...",
@@ -116,8 +116,13 @@ export const act1Events = [
       },
       opened: {
         text: "The crate contains a manual on certain combat techniques!",
-        effects: [{ type: "cardReward", rarity: "uncommon", choices: 3 }],
-        options: [{ text: "[Continue]", effects: [], nextStage: null }],
+        options: [
+          {
+            text: "[Continue]",
+            effects: [{ type: "cardReward", rarity: "uncommon", choices: 3 }], // 👈 Moved here
+            nextStage: null,
+          },
+        ],
       },
 
       left: {

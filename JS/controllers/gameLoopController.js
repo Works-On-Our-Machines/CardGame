@@ -1,4 +1,4 @@
-import { gameState } from "../state/gameState.js";
+import { gameState } from "../state/gamestate.js";
 import { executeSideCombat } from "../combat.js";
 import { setEndTurnButtonState, startPlayerTurn } from "./boardController.js";
 import { executeCpuTurn } from "./cpuController.js"; //

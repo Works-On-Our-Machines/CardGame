@@ -73,9 +73,11 @@ export const gameState = {
     this.initCombat(enemyData);
   },
 
-  /**
-   * Commits combat health back to runState (call when damage is taken or combat ends)
-   */
+  damagePlayer(amount) {
+    this.player.hp = Math.max(0, this.player.hp - amount);
+    this.syncHealthToRun();
+  },
+
   syncHealthToRun() {
     runState.currentHP = Math.max(0, this.player.hp);
   },

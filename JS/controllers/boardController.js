@@ -1,10 +1,10 @@
-import { playerDeck } from "../data/playerDeck.js";
 import { createCard } from "../cardCreator.js";
-import { gameState } from "../state/gameState.js";
+import { gameState } from "../state/gamestate.js";
 import { handleEndTurn } from "./gameLoopController.js";
 import { loadEncounter } from "./cpuController.js";
 import { cardDatabase } from "../data/cardsdatabase.js";
 import { runState } from "../state/runState.js";
+import { updateTopBar } from "../ui/topBarRenderer.js";
 
 export function setupBoard() {
   // 1. Reset combat-ephemeral state (board slots, hand, energy)
@@ -61,8 +61,7 @@ export function setupBoard() {
   gameState.turnPhase = "DRAW";
   renderStatsUI();
   updateDeckUI();
-  startPlayerTurn();
-  gameState.player.energy = gameState.player.startingEnergy;
+  startPlayerTurn(true); // ◄ Tell the function it is Turn 1
 }
 
 function handleHandClick(event) {
@@ -212,6 +211,10 @@ function shuffleDeck(array) {
 }
 
 export function renderStatsUI() {
+  // 1. Keep runState synchronized with combat HP
+  gameState.syncHealthToRun();
+
+  // 2. Update Battle Screen UI
   const playerHpEl = document.getElementById("player-hp");
   const playerEnergyEl = document.getElementById("player-energy");
   const enemyHpEl = document.getElementById("enemy-hp");
@@ -227,22 +230,27 @@ export function renderStatsUI() {
   if (enemyHpEl && gameState.enemy) {
     enemyHpEl.textContent = `${gameState.enemy.hp}/${gameState.enemy.maxHp}`;
   }
+
+  // 3. Refresh the Top Bar UI
+  updateTopBar();
 }
 
-export function startPlayerTurn() {
+export function startPlayerTurn(isFirstTurn = false) {
   gameState.player.cardsDrawnThisTurn = 0;
   gameState.turnPhase = "DRAW"; // ◄ Lock the game in Draw Phase!
 
-  gameState.player.energy = Math.min(
-    gameState.player.maxEnergy,
-    gameState.player.energy + gameState.player.energyGain,
-  );
+  // Clean, explicit logic:
+  if (isFirstTurn) {
+    gameState.player.energy = gameState.player.startingEnergy;
+  } else {
+    gameState.player.energy = Math.min(
+      gameState.player.maxEnergy,
+      gameState.player.energy + gameState.player.energyGain,
+    );
+  }
 
   renderStatsUI();
 
-  // Lock the End Turn button until they draw
-  // This doesn't actually work
-  // It works now in other places, but leaving it here because Im worried to remove it
   setEndTurnButtonState(false);
   console.log("Draw Phase: Please draw a card from either deck.");
 

@@ -1,4 +1,4 @@
-import { gameState } from "../state/gameState.js";
+import { gameState } from "../state/gamestate.js";
 import { encounters } from "../data/encounters.js";
 import { encounterDecks } from "../data/encounterDecks.js";
 import { cardDatabase } from "../data/cardsdatabase.js";

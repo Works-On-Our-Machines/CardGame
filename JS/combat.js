@@ -1,5 +1,4 @@
-
-import { gameState } from "./state/gameState.js";
+import { gameState } from "./state/gamestate.js";
 import { renderStatsUI } from "./controllers/boardController.js";
 import { createCard } from "./cardCreator.js";
 import { showRewardScreen } from "./controllers/rewardController.js";
