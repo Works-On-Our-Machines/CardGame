@@ -37,7 +37,7 @@ export function updateTopBar(targetEl = null) {
       : runState.artefacts
           .map(
             (r) => `
-          <div class="reward-item" title="${r.name}" style="padding: 4px 10px; font-size: 0.85rem; background: #252836; border: 1px solid #454962;">
+          <div class="reward-item" title="${r.name}" style="padding: 4px 10px; font-size: 0.65rem; background: #252836; border: 1px solid #454962;">
             🛡️ ${r.name}
           </div>
         `,
@@ -45,12 +45,12 @@ export function updateTopBar(targetEl = null) {
           .join("");
 
   topBar.innerHTML = `
-    <div class="row justify-evenly align-center" style="font-weight: bold; font-size: 1.05rem;">
+    <div class="row justify-evenly align-center" style="font-weight: bold; font-size: 0.65rem;">
       <div style="color: #3498db;">📌 Floor: <span style="color: #fff;">${runState.floor}</span></div>
       <div style="color: #e74c3c;">❤️ HP: <span style="color: #fff;">${runState.currentHP} / ${runState.maxHP}</span></div>
       <div style="color: #f1c40f;">🪙 Gold: <span style="color: #fff;">${runState.currency}</span></div>
     </div>
-    <div class="row align-center gap-1" style="min-height: 28px; padding-top: 4px; border-top: 1px solid #2a2d37;">
+    <div class="row align-center gap-1" style="min-height: 20px; padding-top: 4px; border-top: 1px solid #2a2d37;">
       <span style="font-size: 0.8rem; color: #888; font-weight: bold; text-transform: uppercase;">Artifacts:</span>
       <div class="row align-center gap-1" style="flex-wrap: wrap;">
         ${artefactsHTML}

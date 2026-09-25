@@ -1,20 +1,20 @@
+// JS/combat.js
 import { gameState } from "./state/gamestate.js";
 import { renderStatsUI } from "./controllers/boardController.js";
 import { createCard } from "./cardCreator.js";
 import { showRewardScreen } from "./controllers/rewardController.js";
 import { showMapView } from "./main.js";
+import {
+  hasRule,
+  triggerRuleHook,
+  processTurnEndRules,
+} from "./data/ruleProcessor.js";
 
 // Helper to pause execution for visual pacing
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Helper to check card specials array safely
-function hasSpecial(card, rule) {
-  return card?.specials?.includes(rule) ?? false;
-}
-
 /**
  * EXPORTED: Executes combat for ONE side ("player" or "enemy")
- * Called directly by gameLoopController.js
  */
 export async function executeSideCombat(attackerSide) {
   const isPlayer = attackerSide === "player";
@@ -28,59 +28,85 @@ export async function executeSideCombat(attackerSide) {
     const attackerCard = boardLane[slotIndex];
 
     // Skip empty slots or cards with 0 ATK
-    if (!attackerCard || attackerCard.atk <= 0) continue;
+    if (
+      !attackerCard ||
+      getEffectiveAtk(attackerCard, slotIndex, boardLane) <= 0
+    )
+      continue;
 
-    // Highlight active attacking slot visually
     highlightSlot(isPlayer ? "PlayerFront" : "enemyFront", slotIndex, true);
 
-    // Execute attack(s) for this specific card
     await executeCardAttack(attackerCard, slotIndex, attackerSide);
 
     highlightSlot(isPlayer ? "PlayerFront" : "enemyFront", slotIndex, false);
 
-    // Stop phase if combat ended mid-lane
     if (gameState.isCombatOver) break;
   }
 }
 
 /**
- * Handles attack patterns (straight, bifurcated) and multi-strikes (double_strike)
+ * Calculates attack including Leader bonus (+1 ATK per adjacent Leader card)
+ */
+function getEffectiveAtk(card, slotIndex, lane) {
+  if (!card) return 0;
+  let bonus = 0;
+
+  const leftCard = lane[slotIndex - 1];
+  const rightCard = lane[slotIndex + 1];
+
+  if (hasRule(leftCard, "leader")) bonus += 1;
+  if (hasRule(rightCard, "leader")) bonus += 1;
+
+  return card.atk + bonus;
+}
+
+/**
+ * Handles attack patterns (straight, bifurcated, trifurcated) and multi-strikes (double_strike)
  */
 async function executeCardAttack(attacker, slotIndex, attackerSide) {
   const isPlayer = attackerSide === "player";
 
-  // Define opponent target parameters
   const defenderFrontKey = isPlayer ? "enemyFront" : "playerFront";
   const defenderBackKey = isPlayer ? "enemyBack" : null;
   const defenderFace = isPlayer ? gameState.enemy : gameState.player;
+  const attackerFace = isPlayer ? gameState.player : gameState.enemy;
 
-  // 1. Determine Target Slots (Default: straight ahead)
+  // 1. Target Slots
   let targetSlots = [slotIndex];
 
-  if (hasSpecial(attacker, "bifurcated")) {
+  if (
+    hasRule(attacker, "bifurcated") ||
+    hasRule(attacker, "bifurcated strike")
+  ) {
     targetSlots = [slotIndex - 1, slotIndex + 1].filter(
       (idx) => idx >= 0 && idx < 4,
     );
-  } else if (hasSpecial(attacker, "trifurcated")) {
+  } else if (
+    hasRule(attacker, "trifurcated") ||
+    hasRule(attacker, "trifurcated strike")
+  ) {
     targetSlots = [slotIndex - 1, slotIndex, slotIndex + 1].filter(
       (idx) => idx >= 0 && idx < 4,
     );
   }
 
-  // 2. Determine Hits Per Target (Default: 1 hit)
-  const hitCount = hasSpecial(attacker, "double_strike") ? 2 : 1;
+  // 2. Hits Per Target
+  const hitCount = hasRule(attacker, "double_strike") ? 2 : 1;
 
-  // 3. Execute Attacks
+  // 3. Execute Hits
   for (let hit = 0; hit < hitCount; hit++) {
     for (const targetIdx of targetSlots) {
       if (gameState.isCombatOver) return;
 
       await resolveSingleHit(
         attacker,
+        slotIndex,
         targetIdx,
         defenderFrontKey,
         defenderBackKey,
         defenderFace,
+        attackerFace,
+        attackerSide,
       );
       await delay(250);
     }
@@ -90,7 +116,7 @@ async function executeCardAttack(attacker, slotIndex, attackerSide) {
 }
 
 /**
- * Target Resolution: Decides what the attacker is actually hitting
+ * Target Resolution: Airborne / Winged Defender logic
  */
 function resolveTargetForSlot(
   attacker,
@@ -103,9 +129,12 @@ function resolveTargetForSlot(
     ? gameState.board[defenderBackKey]?.[targetSlotIdx]
     : null;
 
-  // FLYING LOGIC
-  if (hasSpecial(attacker, "flying")) {
-    if (hasSpecial(frontCard, "mighty_leap")) {
+  // AIRBORNE / FLYING LOGIC
+  if (hasRule(attacker, "airborne") || hasRule(attacker, "flying")) {
+    if (
+      hasRule(frontCard, "winged defender") ||
+      hasRule(frontCard, "mighty_leap")
+    ) {
       return {
         type: "card",
         card: frontCard,
@@ -113,7 +142,10 @@ function resolveTargetForSlot(
         index: targetSlotIdx,
       };
     }
-    if (hasSpecial(backCard, "mighty_leap")) {
+    if (
+      hasRule(backCard, "winged defender") ||
+      hasRule(backCard, "mighty_leap")
+    ) {
       return {
         type: "card",
         card: backCard,
@@ -138,15 +170,23 @@ function resolveTargetForSlot(
 }
 
 /**
- * Damage Calculation, Overflow, and Death Processing
+ * Resolves damage, rule hooks (Shell, Deadly, Vampiric, Spikey, Sacrificial, Unkillable), and overflow
  */
 async function resolveSingleHit(
   attacker,
+  attackerSlotIdx,
   targetSlotIdx,
   defenderFrontKey,
   defenderBackKey,
   defenderFace,
+  attackerFace,
+  attackerSide,
 ) {
+  const attackerLaneKey =
+    attackerSide === "player" ? "playerFront" : "enemyFront";
+  const attackerLane = gameState.board[attackerLaneKey];
+  const attackPower = getEffectiveAtk(attacker, attackerSlotIdx, attackerLane);
+
   const target = resolveTargetForSlot(
     attacker,
     targetSlotIdx,
@@ -156,9 +196,9 @@ async function resolveSingleHit(
 
   // A) TARGET IS FACE
   if (target.type === "face") {
-    defenderFace.hp -= attacker.atk;
+    defenderFace.hp -= attackPower;
+    console.log(`${attacker.name} dealt ${attackPower} damage to Face!`);
 
-    console.log(`${attacker.name} dealt ${attacker.atk} damage to Face!`);
     renderStatsUI();
     updateBoardSlotsUI();
     checkVictoryConditions();
@@ -167,17 +207,76 @@ async function resolveSingleHit(
 
   // B) TARGET IS A CARD
   const targetCard = target.card;
-  const damage = attacker.atk;
+  const defenderSide = attackerSide === "player" ? "enemy" : "player";
 
-  targetCard.hp -= damage;
-  console.log(`${attacker.name} hit ${targetCard.name} for ${damage} damage!`);
+  // Build Damage Context Object for Hook Mutations
+  const damageContext = {
+    amount: attackPower,
+    cancelled: false,
+    actualDealt: 0,
+  };
 
-  // Death Check
+  // 1. PRE-DAMAGE: Target Hook (e.g. Shell, Spikey)
+  triggerRuleHook(
+    "onTakeDamage",
+    targetCard,
+    gameState,
+    attacker,
+    damageContext,
+    attackerSide,
+  );
+
+  if (damageContext.cancelled) {
+    updateBoardSlotsUI();
+    return;
+  }
+
+  // Check if attacker died from Spikey recoil before striking
+  if (attacker.hp <= 0) {
+    console.log(
+      `${attacker.name} perished from recoil before completing strike!`,
+    );
+    gameState.board[attackerLaneKey][attackerSlotIdx] = null;
+    triggerRuleHook("onDeath", attacker, gameState, attackerSide);
+    updateBoardSlotsUI();
+    checkVictoryConditions();
+    return;
+  }
+
+  // 2. PRE-DAMAGE: Attacker Hook (e.g. Deadly)
+  triggerRuleHook(
+    "onDealDamage",
+    attacker,
+    gameState,
+    targetCard,
+    damageContext,
+  );
+
+  // 3. APPLY DAMAGE
+  const hpBeforeHit = targetCard.hp;
+  targetCard.hp -= damageContext.amount;
+  damageContext.actualDealt = Math.min(damageContext.amount, hpBeforeHit);
+
+  console.log(
+    `${attacker.name} hit ${targetCard.name} for ${damageContext.amount} damage!`,
+  );
+
+  // 4. POST-DAMAGE: Attacker Hook (e.g. Vampiric)
+  triggerRuleHook(
+    "onDealDamage",
+    attacker,
+    gameState,
+    targetCard,
+    damageContext,
+  );
+
+  // 5. TARGET DEATH PROCESSING
   if (targetCard.hp <= 0) {
     const excessDamage = Math.abs(targetCard.hp);
     console.log(`${targetCard.name} was destroyed!`);
 
     gameState.board[target.laneKey][target.index] = null;
+    triggerRuleHook("onDeath", targetCard, gameState, defenderSide);
 
     // OVERFLOW LOGIC
     if (target.laneKey === defenderFrontKey && defenderBackKey) {
@@ -192,6 +291,7 @@ async function resolveSingleHit(
         if (backCard.hp <= 0) {
           console.log(`Backline card ${backCard.name} destroyed by overflow!`);
           gameState.board[defenderBackKey][target.index] = null;
+          triggerRuleHook("onDeath", backCard, gameState, defenderSide);
         }
       }
     }
@@ -199,6 +299,14 @@ async function resolveSingleHit(
 
   updateBoardSlotsUI();
   checkVictoryConditions();
+}
+
+/**
+ * EXPORTED: Call this at the end of a turn to execute turn-end rules across the board
+ */
+export function processEndOfTurnRules(side) {
+  processTurnEndRules(gameState, side);
+  updateBoardSlotsUI();
 }
 
 /**
@@ -263,7 +371,7 @@ export function checkVictoryConditions() {
 
     setTimeout(() => {
       showRewardScreen({
-        gold: totalGold,
+        currency: totalGold,
         choices: 3,
         rarity: gameState.currentEncounterType === "elite" ? "rare" : "any",
       });

@@ -15,6 +15,7 @@ export const gameState = {
     cardDrawPerTurn: 1,
     cardsDrawnThisTurn: 0,
     initialCardDraw: 3,
+    playerSuite: "red",
   },
 
   enemy: {

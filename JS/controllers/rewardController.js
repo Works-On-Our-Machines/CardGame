@@ -1,54 +1,34 @@
 // JS/controllers/rewardController.js
 import { runState } from "../state/runState.js";
-import { cardDatabase } from "../data/cardsdatabase.js";
+import { cardDatabase } from "../data/cardsdatabase.js"; // Note: verify capitalization of your file here
 import { createCard } from "../cardCreator.js";
 import { showMapView } from "../main.js";
 import { updateTopBar } from "../ui/topBarRenderer.js";
 
 /**
- * Displays the reward modal for combat victories and event rewards.
- * @param {Object|number|string} config - Configuration object or direct values
- * @param {Function} [fallbackCallback] - Callback after rewards are claimed/skipped
+ * Clean, predictable reward screen.
+ * config MUST be an object. Example:
+ * { currency: 25, choices: 3, rarity: "any", cardId: null, onComplete: null }
  */
-export function showRewardScreen(config = {}, fallbackCallback = null) {
-  let currencyAward = 0;
-  let choicesCount = 3;
-  let rarity = "any";
-  let cardId = null;
-  let onComplete = null;
+export function showRewardScreen(config = {}) {
+  // 1. Clean variable assignment (No more guessing types)
+  const currencyReward = config.currency || 0;
+  const choicesCount = config.choices || 3;
+  const rarity = config.rarity || "any";
+  const cardId = config.cardId || null;
+  const onComplete = config.onComplete || showMapView;
 
-  // 1. Normalize parameters safely across caller types
-  if (typeof config === "number") {
-    currencyAward = config;
-    onComplete = fallbackCallback;
-  } else if (typeof config === "string") {
-    const baseCurrency = config === "elite" ? 50 : 25;
-    const overkill =
-      typeof fallbackCallback === "number" ? fallbackCallback : 0;
-    currencyAward = baseCurrency + overkill;
-  } else if (typeof config === "object" && config !== null) {
-    currencyAward = Number(config.currency ?? config.gold ?? 0);
-    choicesCount = config.choices || 3;
-    rarity = config.rarity || "any";
-    cardId = config.cardId || null;
-    onComplete = config.onComplete || fallbackCallback;
-  }
-
-  if (!onComplete || typeof onComplete !== "function") {
-    onComplete = showMapView;
-  }
-
-  // 2. Process Currency Award & update Top Bar in real-time
-  if (currencyAward > 0) {
-    runState.currency = (runState.currency || 0) + currencyAward;
+  // 2. Award Currency
+  if (currencyReward > 0) {
+    runState.currency += currencyReward;
     updateTopBar();
   }
 
-  // 3. Remove existing overlays to prevent duplicates
+  // 3. Clear any old modals
   const existingOverlay = document.getElementById("reward-overlay");
   if (existingOverlay) existingOverlay.remove();
 
-  // 4. Create Modal DOM Container
+  // 4. Create UI Background & Modal
   const overlay = document.createElement("div");
   overlay.className = "overlay";
   overlay.id = "reward-overlay";
@@ -56,98 +36,79 @@ export function showRewardScreen(config = {}, fallbackCallback = null) {
   const modal = document.createElement("div");
   modal.className = "reward-modal column align-center";
 
-  const title = document.createElement("h2");
-  title.className = "reward-title";
-  title.textContent = "Rewards";
-  modal.appendChild(title);
-
-  // Currency Payout Banner
-  if (currencyAward > 0) {
-    const payoutContainer = document.createElement("div");
-    payoutContainer.className = "payout-container";
-
-    const currencyItem = document.createElement("div");
-    currencyItem.className = "reward-item";
-    currencyItem.textContent = `+${currencyAward} Currency`;
-    payoutContainer.appendChild(currencyItem);
-
-    modal.appendChild(payoutContainer);
-  }
-
-  // 5. Populate Card Choices
-  const cardsGrid = document.createElement("div");
-  cardsGrid.className = "card-rewards-grid";
-
-  const cardPool = getFilteredCardPool(rarity, cardId);
-  const cardChoices = getRandomCards(cardPool, choicesCount);
-
-  cardChoices.forEach((cardData) => {
-    const cardWrapper = document.createElement("div");
-    cardWrapper.className = "reward-card-wrapper";
-
-    const cardEl = createCard(cardData);
-    cardWrapper.appendChild(cardEl);
-
-    cardWrapper.addEventListener("click", () => {
-      if (Array.isArray(runState.masterDeck)) {
-        runState.masterDeck.push({ ...cardData });
-      }
-      cleanupAndProceed();
-    });
-
-    cardsGrid.appendChild(cardWrapper);
-  });
-
-  modal.appendChild(cardsGrid);
-
-  // 6. Action Controls
-  const actionsContainer = document.createElement("div");
-  actionsContainer.className = "reward-actions";
-
-  const skipBtn = document.createElement("button");
-  skipBtn.className = "reward-item";
-  skipBtn.textContent = "Skip Rewards";
-  skipBtn.addEventListener("click", cleanupAndProceed);
-
-  actionsContainer.appendChild(skipBtn);
-  modal.appendChild(actionsContainer);
+  modal.innerHTML = `
+    <h2 class="reward-title">Rewards</h2>
+    ${currencyReward > 0 ? `<div class="payout-container"><div class="reward-item">+${currencyReward} Currency</div></div>` : ""}
+    <div class="card-rewards-grid" id="reward-cards-container"></div>
+    <div class="reward-actions"><button id="skip-rewards-btn" class="reward-item">Skip Rewards</button></div>
+  `;
 
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
+  // 5. Get Cards (Filtered by Suite!)
+  const cardsContainer = document.getElementById("reward-cards-container");
+  const cardPool = getFilteredCardPool(rarity, cardId);
+  const cardChoices = getRandomCards(cardPool, choicesCount);
+
+  // 6. Render Cards and add Click Events
+  cardChoices.forEach((cardData) => {
+    const cardWrapper = document.createElement("div");
+    cardWrapper.className = "reward-card-wrapper";
+    cardWrapper.appendChild(createCard(cardData));
+
+    // When the player clicks a card, add it to their deck and close the window
+    cardWrapper.addEventListener("click", () => {
+      runState.masterDeck.push({ ...cardData });
+      cleanupAndProceed();
+    });
+
+    cardsContainer.appendChild(cardWrapper);
+  });
+
+  // 7. Setup Skip Button
+  document
+    .getElementById("skip-rewards-btn")
+    .addEventListener("click", cleanupAndProceed);
+
+  // Helper to destroy window and move on
   function cleanupAndProceed() {
     overlay.remove();
-    if (typeof onComplete === "function") {
-      onComplete();
-    }
+    onComplete();
   }
 }
 
-/**
- * Helper: Filters global card pool by rarity or specific cardId
- */
-function getFilteredCardPool(rarity, cardId = null) {
-  const allCards = Array.isArray(cardDatabase) ? cardDatabase : Object.values(cardDatabase || {});
+function getFilteredCardPool(rarity, cardId) {
+  const allCards = Object.values(cardDatabase || {});
   if (allCards.length === 0) return [];
 
+  // If the event gives a very specific card, just return that
   if (cardId) {
     const specificCard = allCards.find((c) => c.id === cardId);
-    if (specificCard) return [specificCard];
-    console.warn(`[Reward] Card ID "${cardId}" not found. Falling back.`);
+    return specificCard ? [specificCard] : [];
   }
 
-  if (rarity && rarity !== "any") {
-    const filtered = allCards.filter(
-      (c) => c.rarity === rarity || c.type === rarity
-    );
-    return filtered.length > 0 ? filtered : allCards;
-  }
+  // Get the suite from runState 
+  const activeSuite = runState.playerSuite || "red";
 
-  return allCards;
+  return allCards.filter((card) => {
+    // 1. Suite Check: Allow if no suite, "none", "gray", or matches the player's suite
+    const matchesSuite =
+      !card.suite ||
+      card.suite === "none" ||
+      card.suite === "gray" ||
+      card.suite === activeSuite;
+
+    // 2. Rarity Check: Check BOTH card.type (your DB) and card.rarity (just in case)
+    const matchesRarity =
+      rarity === "any" || card.type === rarity || card.rarity === rarity;
+
+    return matchesSuite && matchesRarity;
+  });
 }
 
 /**
- * Helper: Returns N random non-repeating cards
+ * Shuffles an array and returns X items
  */
 function getRandomCards(pool, count) {
   if (!pool || pool.length === 0) return [];

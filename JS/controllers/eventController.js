@@ -70,7 +70,6 @@ function handleOptionSelect(option) {
         cardId: cardEffect.cardId || null,
         onComplete: proceedToNextStage,
       },
-      proceedToNextStage,
     );
   } else {
     proceedToNextStage();

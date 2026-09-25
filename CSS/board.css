@@ -236,6 +236,9 @@ body,
 
   gap: 1rem;
 
+  /*Push the lanes slightly down*/
+  margin-top: 10px;
+
   overflow: hidden;
 }
 

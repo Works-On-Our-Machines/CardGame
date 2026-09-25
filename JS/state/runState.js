@@ -10,6 +10,8 @@ export const runState = {
   maxHP: 10,
   floor: 0,
 
+  playerSuite: "red",
+
   // --- Map & Progression State ---
   mapData: [],
   currentNodeId: null,
