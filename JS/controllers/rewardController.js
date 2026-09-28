@@ -95,8 +95,6 @@ function getFilteredCardPool(rarity, cardId) {
     // 1. Suite Check: Allow if no suite, "none", "gray", or matches the player's suite
     const matchesSuite =
       !card.suite ||
-      card.suite === "none" ||
-      card.suite === "gray" ||
       card.suite === activeSuite;
 
     // 2. Rarity Check: Check BOTH card.type (your DB) and card.rarity (just in case)

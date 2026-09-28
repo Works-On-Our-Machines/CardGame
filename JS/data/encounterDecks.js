@@ -13,4 +13,6 @@ export const encounterDecks = {
 
   // Alternative testing deck: Beast theme
   test_pack_basic: ["card_003", "card_003", "card_003", "card_004"],
+
+  shrine_event_A1: [],
 };

@@ -1,0 +1,15 @@
+.topBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #181a20;
+  border-bottom: 2px solid #2a2d37;
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 2000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+}
