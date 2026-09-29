@@ -8,6 +8,7 @@ export const runState = {
   freeDeckCount: 10,
   currentHP: 10,
   maxHP: 10,
+  maxEnergy: 3,
   floor: 0,
 
   playerSuite: "red",
@@ -28,6 +29,7 @@ export const runState = {
     this.currentHP = 10;
     this.maxHP = 10;
     this.floor = 0;
+    this.maxEnergy = 3;
     this.artefacts = [];
     this.consumables = [];
     this.masterDeck = getStarterDeckCards().map((card) => ({ ...card }));

@@ -47,6 +47,7 @@ export const gameState = {
     // 1. Inherit health state from persistent runState
     this.player.hp = runState.currentHP;
     this.player.maxHp = runState.maxHP;
+    this.maxEnergy = runState.maxEnergy;
     this.player.energy = this.player.startingEnergy;
     this.player.cardsDrawnThisTurn = 0;
 

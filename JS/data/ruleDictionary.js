@@ -5,6 +5,7 @@ export const RuleDictionary = {
       const ownerObj = owner === "player" ? gameState.player : gameState.enemy;
       if (ownerObj) {
         ownerObj.energy = (ownerObj.energy || 0) + 2;
+        ownerObj.energy = (ownerObj.maxEnergy || 0) + 1;
         console.log(`${card.name} SACRIFICIAL triggered! Gained +2 Energy.`);
       }
     },
