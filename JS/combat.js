@@ -1,4 +1,5 @@
 // JS/combat.js
+
 import { gameState } from "./state/gamestate.js";
 import { renderStatsUI } from "./controllers/boardController.js";
 import { createCard } from "./cardCreator.js";
@@ -9,9 +10,23 @@ import {
   triggerRuleHook,
   processTurnEndRules,
 } from "./data/ruleProcessor.js";
+import { triggerArtefactHook } from "./controllers/artefactProcessor.js";
 
 // Helper to pause execution for visual pacing
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * EXPORTED: Initializes a new combat phase and fires start-of-combat hooks
+ */
+export function startCombat() {
+  gameState.isCombatOver = false;
+
+  // Fire artefact hooks (e.g. draw extra cards, start with block)
+  triggerArtefactHook("onCombatStart", gameState);
+
+  renderStatsUI();
+  updateBoardSlotsUI();
+}
 
 /**
  * EXPORTED: Executes combat for ONE side ("player" or "enemy")
@@ -170,7 +185,7 @@ function resolveTargetForSlot(
 }
 
 /**
- * Resolves damage, rule hooks (Shell, Deadly, Vampiric, Spikey, Sacrificial, Unkillable), and overflow
+ * Resolves damage, rule hooks, and overflow
  */
 async function resolveSingleHit(
   attacker,
@@ -238,6 +253,8 @@ async function resolveSingleHit(
     );
     gameState.board[attackerLaneKey][attackerSlotIdx] = null;
     triggerRuleHook("onDeath", attacker, gameState, attackerSide);
+
+    // If player lost a card to recoil, no onEnemyKilled trigger
     updateBoardSlotsUI();
     checkVictoryConditions();
     return;
@@ -278,6 +295,11 @@ async function resolveSingleHit(
     gameState.board[target.laneKey][target.index] = null;
     triggerRuleHook("onDeath", targetCard, gameState, defenderSide);
 
+    // Trigger artefact hooks when an enemy unit is destroyed
+    if (defenderSide === "enemy") {
+      triggerArtefactHook("onEnemyKilled", gameState);
+    }
+
     // OVERFLOW LOGIC
     if (target.laneKey === defenderFrontKey && defenderBackKey) {
       const backCard = gameState.board[defenderBackKey]?.[target.index];
@@ -292,6 +314,10 @@ async function resolveSingleHit(
           console.log(`Backline card ${backCard.name} destroyed by overflow!`);
           gameState.board[defenderBackKey][target.index] = null;
           triggerRuleHook("onDeath", backCard, gameState, defenderSide);
+
+          if (defenderSide === "enemy") {
+            triggerArtefactHook("onEnemyKilled", gameState);
+          }
         }
       }
     }
@@ -361,7 +387,14 @@ export function checkVictoryConditions() {
 
     const overkillDamage = Math.abs(enemyHp);
     const baseGold = gameState.currentEncounterType === "elite" ? 50 : 25;
-    const totalGold = baseGold + overkillDamage;
+    let totalGold = baseGold + overkillDamage;
+
+    // Apply gold bonus hooks from owned artefacts (e.g. Greed Idol)
+    const goldContext = { amount: totalGold };
+    triggerArtefactHook("onGoldGain", gameState, goldContext);
+    totalGold = goldContext.amount;
+
+    gameState.player.gold = (gameState.player.gold || 0) + totalGold;
 
     console.log(
       `Enemy defeated! Overkill: ${overkillDamage}. Gold awarded: ${totalGold}`,
