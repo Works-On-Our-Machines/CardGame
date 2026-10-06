@@ -5,6 +5,7 @@ import { loadEncounter } from "./cpuController.js";
 import { cardDatabase } from "../data/cardsdatabase.js";
 import { runState } from "../state/runState.js";
 import { updateTopBar } from "../ui/topBarRenderer.js";
+import { startCombat } from "../combat.js";
 
 export function setupBoard() {
   // 1. Reset combat-ephemeral state (board slots, hand, energy)
@@ -59,8 +60,10 @@ export function setupBoard() {
 
   // 8. Start Turn & Refresh UI
   gameState.turnPhase = "DRAW";
+  startCombat();
   renderStatsUI();
   updateDeckUI();
+  renderHandUI();
   startPlayerTurn(true); // ◄ Tell the function it is Turn 1
 }
 
@@ -248,6 +251,9 @@ export function startPlayerTurn(isFirstTurn = false) {
       gameState.player.energy + gameState.player.energyGain,
     );
   }
+
+  // ◄ FIRE ARTEFACT HOOK HERE (e.g., Ring of Power adds +1 energy)
+  triggerArtefactHook("onTurnStart", gameState);
 
   renderStatsUI();
 

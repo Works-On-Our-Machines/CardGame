@@ -1,4 +1,4 @@
-.topBar {
+#global-top-bar {
   position: fixed;
   top: 0;
   left: 0;
@@ -10,6 +10,49 @@
   flex-direction: column;
   gap: 8px;
   z-index: 2000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
   box-sizing: border-box;
+}
+
+.topbar-stats-row {
+  font-weight: bold;
+  font-size: 0.65rem;
+}
+
+.topbar-stat-floor { color: #3498db; }
+.topbar-stat-hp { color: #e74c3c; }
+.topbar-stat-gold { color: #f1c40f; }
+.topbar-stat-value { color: #fff; }
+
+.topbar-artefacts-row {
+  min-height: 20px;
+  padding-top: 4px;
+  border-top: 1px solid #2a2d37;
+}
+
+.topbar-artefacts-label {
+  font-size: 0.8rem;
+  color: #888;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.topbar-empty-artefacts {
+  color: #666;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.topbar-artefact-tag {
+  padding: 4px 10px;
+  font-size: 0.65rem;
+  background: #252836;
+  border: 1px solid #454962;
+  border-radius: 4px;
+  cursor: help; /* Shows a question mark on hover since we use the 'title' tooltip */
+}
+
+/* Helper utility for the flex wrapper if you don't already have one globally */
+.flex-wrap {
+  flex-wrap: wrap;
 }

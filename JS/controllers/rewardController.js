@@ -4,6 +4,8 @@ import { cardDatabase } from "../data/cardsdatabase.js"; // Note: verify capital
 import { createCard } from "../cardCreator.js";
 import { showMapView } from "../main.js";
 import { updateTopBar } from "../ui/topBarRenderer.js";
+import { ArtefactDictionary } from "./artefactDictionary.js";
+import { addArtefactToPlayer } from "./artefactProcessor.js";
 
 /**
  * Clean, predictable reward screen.
@@ -11,24 +13,24 @@ import { updateTopBar } from "../ui/topBarRenderer.js";
  * { currency: 25, choices: 3, rarity: "any", cardId: null, onComplete: null }
  */
 export function showRewardScreen(config = {}) {
-  // 1. Clean variable assignment (No more guessing types)
   const currencyReward = config.currency || 0;
   const choicesCount = config.choices || 3;
   const rarity = config.rarity || "any";
   const cardId = config.cardId || null;
+  const artefactId = config.artefactId || null; // ◄ NEW: Support artefact drops!
   const onComplete = config.onComplete || showMapView;
 
-  // 2. Award Currency
+  // 1. Award Currency (Auto-granted for simplicity, or you could make it clickable)
   if (currencyReward > 0) {
     runState.currency += currencyReward;
     updateTopBar();
   }
 
-  // 3. Clear any old modals
+  // 2. Clear old modals
   const existingOverlay = document.getElementById("reward-overlay");
   if (existingOverlay) existingOverlay.remove();
 
-  // 4. Create UI Background & Modal
+  // 3. Create UI
   const overlay = document.createElement("div");
   overlay.className = "overlay";
   overlay.id = "reward-overlay";
@@ -36,9 +38,23 @@ export function showRewardScreen(config = {}) {
   const modal = document.createElement("div");
   modal.className = "reward-modal column align-center";
 
+  // Check if we have a valid artefact to display
+  const hasArtefact = artefactId && artefactDatabase[artefactId];
+
   modal.innerHTML = `
     <h2 class="reward-title">Rewards</h2>
-    ${currencyReward > 0 ? `<div class="payout-container"><div class="reward-item">+${currencyReward} Currency</div></div>` : ""}
+    <div class="payout-container column align-center gap-2">
+      ${currencyReward > 0 ? `<div class="reward-item">+${currencyReward} Gold</div>` : ""}
+      ${
+        hasArtefact
+          ? `
+        <button id="claim-artefact-btn" class="reward-item artefact-reward row align-center gap-2" style="cursor: pointer;">
+          <strong>+ Artefact:</strong> ${artefactDatabase[artefactId].name}
+        </button>
+      `
+          : ""
+      }
+    </div>
     <div class="card-rewards-grid" id="reward-cards-container"></div>
     <div class="reward-actions"><button id="skip-rewards-btn" class="reward-item">Skip Rewards</button></div>
   `;
@@ -46,18 +62,31 @@ export function showRewardScreen(config = {}) {
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
-  // 5. Get Cards (Filtered by Suite!)
+  // 4. Artefact Click Logic (Claiming the artefact)
+  if (hasArtefact) {
+    const artBtn = document.getElementById("claim-artefact-btn");
+    artBtn.addEventListener("click", () => {
+      // Give the artefact using our processor
+      addArtefactToPlayer(artefactId);
+
+      // Update UI to show it's been claimed
+      artBtn.style.opacity = "0.5";
+      artBtn.style.pointerEvents = "none";
+      artBtn.innerText = `Claimed: ${artefactDatabase[artefactId].name}`;
+      updateTopBar();
+    });
+  }
+
+  // 5. Get and Render Cards
   const cardsContainer = document.getElementById("reward-cards-container");
   const cardPool = getFilteredCardPool(rarity, cardId);
   const cardChoices = getRandomCards(cardPool, choicesCount);
 
-  // 6. Render Cards and add Click Events
   cardChoices.forEach((cardData) => {
     const cardWrapper = document.createElement("div");
     cardWrapper.className = "reward-card-wrapper";
     cardWrapper.appendChild(createCard(cardData));
 
-    // When the player clicks a card, add it to their deck and close the window
     cardWrapper.addEventListener("click", () => {
       runState.masterDeck.push({ ...cardData });
       cleanupAndProceed();
@@ -66,12 +95,10 @@ export function showRewardScreen(config = {}) {
     cardsContainer.appendChild(cardWrapper);
   });
 
-  // 7. Setup Skip Button
   document
     .getElementById("skip-rewards-btn")
     .addEventListener("click", cleanupAndProceed);
 
-  // Helper to destroy window and move on
   function cleanupAndProceed() {
     overlay.remove();
     onComplete();

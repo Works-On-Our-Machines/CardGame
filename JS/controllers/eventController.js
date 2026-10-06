@@ -3,7 +3,9 @@ import { runState } from "../state/runState.js";
 import { createEventView } from "../ui/eventRenderer.js";
 import { showMapView, loadBoardView } from "../main.js";
 import { showRewardScreen } from "./rewardController.js";
-import { renderTopBar, updateTopBar } from "../ui/topBarRenderer.js"; // Import renderTopBar & updateTopBar
+import { renderTopBar, updateTopBar } from "../ui/topBarRenderer.js"; //
+import { addArtefactToPlayer } from "./artefactProcessor.js";
+import { artefactDatabase } from "../data/artefactDatabase.js";
 
 let currentActiveEvent = null;
 
@@ -38,7 +40,7 @@ function renderStage(stageKey) {
 }
 
 function handleOptionSelect(option) {
-  // 1. Process instant non-modal numerical effects (currency, HP, Relics)
+  // 1. Process instant non-modal numerical effects (currency, HP, Artefact)
   const executionContext = processEffects(option.effects || []);
 
   // 2. Check if this option includes a card reward modal request
@@ -63,14 +65,12 @@ function handleOptionSelect(option) {
 
   // 3. Trigger standard reward modal if requested; otherwise advance directly
   if (cardEffect) {
-    showRewardScreen(
-      {
-        rarity: cardEffect.rarity || "any",
-        choices: cardEffect.choices || 3,
-        cardId: cardEffect.cardId || null,
-        onComplete: proceedToNextStage,
-      },
-    );
+    showRewardScreen({
+      rarity: cardEffect.rarity || "any",
+      choices: cardEffect.choices || 3,
+      cardId: cardEffect.cardId || null,
+      onComplete: proceedToNextStage,
+    });
   } else {
     proceedToNextStage();
   }
@@ -107,12 +107,16 @@ function processEffects(effects) {
         statsChanged = true;
         break;
 
-      case "gainRelic":
-        runState.relics.push({
-          id: effect.relicId || `relic_${Date.now()}`,
-          name: effect.name || "Artifact",
-          pool: effect.pool || "generic",
-        });
+      case "gainArtefact":
+        let targetId = effect.artefactId;
+
+        // If the event didn't specify an ID, pick a random one from the database
+        if (!targetId) {
+          const allKeys = Object.keys(artefactDatabase);
+          targetId = allKeys[Math.floor(Math.random() * allKeys.length)];
+        }
+
+        addArtefactToPlayer(targetId);
         statsChanged = true;
         break;
 

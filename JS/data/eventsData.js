@@ -15,8 +15,8 @@ export const startingBoonsEvent = {
           nextStage: null,
         },
         {
-          text: "[Relic Cache] Receive 1 random artifact.",
-          effects: [{ type: "gainRelic", pool: ["generic", "classSpecific"] }],
+          text: "[Artefact Cache] Receive 1 random artifact.",
+          effects: [{ type: "gainArtefact", pool: ["generic", "classSpecific"] }],
           nextStage: null,
         },
         {

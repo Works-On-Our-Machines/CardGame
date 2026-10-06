@@ -2,9 +2,8 @@
 
 import { gameState } from "../state/gamestate.js";
 import { executeSideCombat, checkVictoryConditions } from "../combat.js";
-import { setEndTurnButtonState, renderStatsUI } from "./boardController.js";
+import { setEndTurnButtonState, startPlayerTurn } from "./boardController.js";
 import { executeCpuTurn } from "./cpuController.js";
-import { triggerArtefactHook } from "./artefactProcessor.js";
 
 export async function handleEndTurn() {
   setEndTurnButtonState(false);
@@ -35,10 +34,4 @@ export async function handleEndTurn() {
   // 4. Start New Player Turn
   console.log("--- NEW PLAYER TURN ---");
   startPlayerTurn();
-}
-
-export function startPlayerTurn() {
-  gameState.player.energy = gameState.player.maxEnergy; // base energy
-  triggerArtefactHook("onTurnStart", gameState); // artefact modifications
-  renderStatsUI();
 }
